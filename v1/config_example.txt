@@ -1,0 +1,28 @@
+# ============================================================================ #
+# MARC Phase 2 analysis configuration
+#
+# Please make a copy of this file called 'config.txt'.
+# Change the paths to be appropriate for your computing system.
+#
+# Conventions:
+#  1. Blank lines are ignored.
+#  2. Lines starting with '#' are comments.
+#  3. Always specify absolute paths.
+#  4. Paths of symbolic links are permitted.
+#  5. Do not use environment variables in pathsnames.
+#  6. RESOURCES must be either 'server' or 'sge'.
+#  7. If RESOURCES=server, the SGE_* parameters are ignored.
+#
+# ============================================================================ 
+
+MP2=/PATH/TO/marcp2
+MARCOPORO=/PATH/tTO/marcoporo/v1
+RESOURCES=sge
+THREADS=8
+SGE_PROJECT=-P MYPROJNAME
+SGE_QUEUE=-q MYQUEUENAME
+SGE_PARALLELENV=-pe shmem 8
+SGE_MERGELOGS=-j y
+SGE_INHERITENV=-V
+
+# ============================================================================ #
