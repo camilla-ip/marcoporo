@@ -15,10 +15,13 @@
 #
 # ============================================================================ 
 
+[paths]
 MP2=/PATH/TO/marcp2
 MARCOPORO=/PATH/tTO/marcoporo/v1
+
+[execution]
 RESOURCES=sge
-THREADS=8
+SERVER_THREADS=8
 SGE_PROJECT=-P MYPROJNAME
 SGE_QUEUE=-q MYQUEUENAME
 SGE_PARALLELENV=-pe shmem 8

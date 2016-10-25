@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+
+'''
+marcoporo nanopore data comparison package
+'''
+
+# ============================================================================ #
+
+import logging
+import os
+import sys
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+_errorargsinvalid = 3
+if len(sys.argv) > 1:
+    _bindir = None
+    try:
+        for i in range(1, len(sys.argv)):
+            if sys.argv[i].startswith('-bindir'):
+                if '=' in sys.argv[i]:
+                    _bindir = os.path.realpath(os.path.expandvars('='.join(sys.argv[i].split('=')[1:])))
+                    break
+                else:
+                    _bindir = os.path.realpath(os.path.expandvars(sys.argv[i+1]))
+                    break
+    except:
+        _bindir = os.path.dirname(os.path.realpath(os.path.expandvars(sys.argv[0])))
+    if _bindir is None:
+        _bindir = os.path.dirname(os.path.realpath(os.path.expandvars(sys.argv[0])))
+    if _bindir and os.path.exists(_bindir):
+        try:
+            sys.path.insert(0, _bindir)
+            import marcoporolib
+        except:
+            sys.stderr.write('Error: Failed to import marcoporolib module\n')
+            sys.exit(_errorargsinvalid)
+    else:
+        sys.path.insert(0, '/'.join(os.path.dirname(os.path.realpath(sys.argv[0])).split('/')[:-2] + ['bin']))
+        sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
+        import marcoporolib
+
+    _profile = None
+    try:
+        for i in range(1, len(sys.argv)):
+            if sys.argv[i].startswith('--profile'):
+                if '=' in sys.argv[i]:
+                    _profile = os.path.realpath(os.path.expandvars('='.join(sys.argv[i].split('=')[1:])))
+                else:
+                    _profile = os.path.realpath(os.path.expandvars(sys.argv[i+1]))
+    except:
+        if os.path.exists(_bindir):
+            _profile = os.path.join(_bindir, 'marcoporo.profile')
+        else:
+            _profile = 'marcoporo.profile'
+    if _profile is None:
+        _profile = os.path.join(_bindir, 'marcoporo.profile')
+    if os.path.exists(_profile):
+        with open (_profile, 'r') as in_fp:
+            for line in in_fp:
+                if not line.startswith('export'):
+                    continue
+                info = line.strip().split(' ')[1].split('=')
+                if len(info) == 2:
+                    var, val = info
+                    sys.stderr.write('Setting {0}={1}\n'.format(var, val))
+                    os.environ[var] = val
+else:
+    sys.path.insert(0, '/'.join(os.path.dirname(os.path.realpath(sys.argv[0])).split('/')[:-2] + ['bin']))
+    sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
+    import marcoporolib
+
+import marcoporoversion
+_P = marcoporolib.marcoporolib()
+import argparse
+import random
+import time
+
+# ============================================================================ #
+
+def run_subtool(parser, args, P, mylogger, myhandler):
+    if args.command == 'move':
+        import move as submodule
+    elif args.command == 'extract':
+        import extract as submodule
+    elif args.command == 'map':
+        import map as submodule
+    submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
+
+class ArgumentParserWithDefaults(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        super(ArgumentParserWithDefaults, self).__init__(*args, **kwargs)
+
+# ============================================================================ #
+
+def main():
+
+  # Create the top-level parser
+
+    parser = argparse.ArgumentParser(prog='marcoporo',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-v', '-version', help='Print version', action='version',
+        version='marcoporo version ' + str(marcoporoversion.__version__))
+    subparsers = parser.add_subparsers(title='[sub-commands]', dest='command',
+        parser_class=ArgumentParserWithDefaults)
+
+  # Create the individual tool parsers
+
+    p01 = subparsers.add_parser('seqparams', help='Extract sequencing parameters')
+    p01.add_argument('-bindir', dest='bindir', metavar='DIR', required=True, default=None,
+        help='Absolute path to marcoporo scripts dir')
+    p01.add_argument('-profile', dest='profile', metavar='FILE', required=True, default=None,
+        help='Absolute path to marcoporo scripts dir')
+    p01.add_argument('-config', dest='config', metavar='FILE', required=True, default=None,
+        help='Machine-specific configuration file')
+    p01.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='List of experiments and analysis parameters [experiment.txt]')
+    p01.set_defaults(func=run_subtool)
+
+  # Parse the arguments
+
+    args = parser.parse_args()
+    if not args.bindir or args.bindir is None:
+        args.bindir = _bindir
+    if not args.profile or args.profile is None:
+        args.profile = _profile
+
+  # Read the -config file
+
+    if not _P.config_read(args.config):
+        sys.stderr.write('Error: Failed to read conf file ({0})\n'.format(args.config))
+        sys.exit(_P.err_code('ErrorReadingData'))
+
+  # Set logging verbosity and output file
+
+    now = time.localtime()
+    logdir = None
+    try:
+        logdir = _P.option['move']['logdir']
+    except:
+        pass
+    if logdir is None:
+        try:
+            logdir = _P.option['program']['logdir']
+        except:
+            sys.stderr.write('Error: Failed to set log dir\n')
+            sys.exit(_P.err_code('ErrorDirCreate'))
+
+    if not os.path.exists(logdir):
+        os.makedirs(logdir)
+    logfile = '{0}-marcoporo-{1:03d}.log'.format(time.strftime('%Y%m%d-%H%M%S', now), random.randint(1, 100))
+    logpath = os.path.join(logdir, logfile)
+
+    handler = logging.FileHandler(logpath)
+    handler.setLevel(logging.INFO)
+    loggingverbosity = _P.option['program']['loggingverbosity'].upper()
+    if loggingverbosity == 'ERROR':
+        logger.setLevel(logging.ERROR)
+        handler.setLevel(logging.ERROR)
+    elif loggingverbosity == 'DEBUG':
+        logger.setLevel(logging.DEBUG)
+        handler.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s %(levelname)s : %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    logger.info('Program: {0}'.format(marcoporoversion.__program__))
+    logger.info('Version: {0}'.format(marcoporoversion.__version__))
+    logger.info('Descrip: {0}'.format(marcoporoversion.__description__))
+    logger.info('Command: {0}'.format(' '.join(sys.argv)))
+
+  # Call the selected sub-command, ignore SIGPIPEs (32)
+    try:
+        args.func(parser, args, _P, logger, handler)
+    except IOError, e:
+        if e.errno != 32:
+            logger.info('Received kill signal')
+            raise
+
+if __name__ == '__main__':
+    main()
+
+# ============================================================================ #
