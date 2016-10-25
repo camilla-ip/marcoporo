@@ -10,22 +10,24 @@
 #  3. Always specify absolute paths.
 #  4. Paths of symbolic links are permitted.
 #  5. Do not use environment variables in pathsnames.
-#  6. RESOURCES must be either 'server' or 'sge'.
-#  7. If RESOURCES=server, the SGE_* parameters are ignored.
+#  6. resourcestype must be either 'server' or 'sge'.
+#  7. If resourcestype=X, only the X_* parameters are used.
 #
 # ============================================================================ 
 
-[paths]
-MP2=/PATH/TO/marcp2
-MARCOPORO=/PATH/TO/marcoporo/v1
+[program]
+logdir=logs
+loggingverbosity=INFO
+mp2=/PATH/TO/marcp2
+marcoporo=/PATH/TO/marcoporo/v1
+resourcestype=sge
+server_threads=8
+sge_project=-P MYPROJNAME
+sge_queue=-q MYQUEUENAME
+sge_parallelenv=-pe shmem 8
+sge_mergelogs=-j y
+sge_inheritenv=-V
 
-[execution]
-RESOURCES=sge
-SERVER_THREADS=8
-SGE_PROJECT=-P MYPROJNAME
-SGE_QUEUE=-q MYQUEUENAME
-SGE_PARALLELENV=-pe shmem 8
-SGE_MERGELOGS=-j y
-SGE_INHERITENV=-V
+[seqparams]
 
 # ============================================================================ #

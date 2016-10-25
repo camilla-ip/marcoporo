@@ -72,7 +72,7 @@ def Process(args, P, mylogger, myhandler, processname):
     varsetL = [set(C[exptid].keys()) for exptid in C.keys()]
     uniquevarL = list(set.union(*varsetL))
     uniquevarL.sort()
-    resultL.append([''] + exptidL)
+    resultL.append(['Parameter'] + exptidL)
     for var in uniquevarL:
         row = [var] + [C[exptid][var] if C[exptid].has_key(var) else '' for exptid in exptidL]
         resultL.append(row)

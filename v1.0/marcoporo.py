@@ -106,7 +106,7 @@ def main():
         help='Analysis configuration file')
     p01.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
-    p01.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10,
+    p01.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=100,
         help='Number of FAST5 files to inspect from each expt to infer constant attributes.')
     p01.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
