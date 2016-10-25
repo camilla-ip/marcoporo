@@ -76,7 +76,7 @@ def Process(args, P, mylogger, myhandler, processname):
     for var in uniquevarL:
         row = [var] + [C[exptid][var] if C[exptid].has_key(var) else '' for exptid in exptidL]
         resultL.append(row)
-  # Save table as CSV to outdir/seqparams.txt
+  # Save table as TSV to outdir/seqparams.txt
     if not os.path.exists(args.outdir):
         try:
             os.makedirs(args.outdir)
