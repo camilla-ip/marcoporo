@@ -17,7 +17,7 @@
 
 [paths]
 MP2=/PATH/TO/marcp2
-MARCOPORO=/PATH/tTO/marcoporo/v1
+MARCOPORO=/PATH/TO/marcoporo/v1
 
 [execution]
 RESOURCES=sge

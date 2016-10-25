@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import h5py
+import itertools
 import numpy as np
 import os
 import psutil
@@ -220,6 +221,7 @@ class marcoporolib(object):
         return attributeD, runnumberD, readnumberD
 
     # conf
+
     def config_read(self, inipath):
         'Read all the data from the inipath into section and option variables; set lasterror if anything goes wrong.'
         line_section = "UNDEFINED"
@@ -259,6 +261,24 @@ class marcoporolib(object):
                 except:
                     pass
         return True
+
+    # expt
+
+    def expt_read(self, exptfile):
+        'Parse the experiments.txt file and return data in a dict E[rownumber] = { var: val, ...}'
+        E = []
+        columns = []
+        rows = []
+        with open(exptfile, 'r') as in_fp:
+            linecnt = 0
+            for line in in_fp:
+                linecnt += 1
+                if linecnt == 1:
+                    columns = line.rstrip('\n').split('\t')
+                else:
+                    L = line.rstrip('\n').split('\t')
+                    E.append(dict(itertools.izip(columns, L)))
+        return E
 
     # dmn
 

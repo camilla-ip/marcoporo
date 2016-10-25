@@ -4,8 +4,6 @@
 marcoporo nanopore data comparison package
 '''
 
-# ============================================================================ #
-
 import logging
 import os
 import sys
@@ -15,23 +13,23 @@ logger.setLevel(logging.INFO)
 
 _errorargsinvalid = 3
 if len(sys.argv) > 1:
-    _bindir = None
+    _bin = None
     try:
         for i in range(1, len(sys.argv)):
-            if sys.argv[i].startswith('-bindir'):
+            if sys.argv[i].startswith('-bin'):
                 if '=' in sys.argv[i]:
-                    _bindir = os.path.realpath(os.path.expandvars('='.join(sys.argv[i].split('=')[1:])))
+                    _bin = os.path.realpath(os.path.expandvars('='.join(sys.argv[i].split('=')[1:])))
                     break
                 else:
-                    _bindir = os.path.realpath(os.path.expandvars(sys.argv[i+1]))
+                    _bin = os.path.realpath(os.path.expandvars(sys.argv[i+1]))
                     break
     except:
-        _bindir = os.path.dirname(os.path.realpath(os.path.expandvars(sys.argv[0])))
-    if _bindir is None:
-        _bindir = os.path.dirname(os.path.realpath(os.path.expandvars(sys.argv[0])))
-    if _bindir and os.path.exists(_bindir):
+        _bin = os.path.dirname(os.path.realpath(os.path.expandvars(sys.argv[0])))
+    if _bin is None:
+        _bin = os.path.dirname(os.path.realpath(os.path.expandvars(sys.argv[0])))
+    if _bin and os.path.exists(_bin):
         try:
-            sys.path.insert(0, _bindir)
+            sys.path.insert(0, _bin)
             import marcoporolib
         except:
             sys.stderr.write('Error: Failed to import marcoporolib module\n')
@@ -50,12 +48,12 @@ if len(sys.argv) > 1:
                 else:
                     _profile = os.path.realpath(os.path.expandvars(sys.argv[i+1]))
     except:
-        if os.path.exists(_bindir):
-            _profile = os.path.join(_bindir, 'marcoporo.profile')
+        if os.path.exists(_bin):
+            _profile = os.path.join(_bin, 'marcoporo.profile')
         else:
             _profile = 'marcoporo.profile'
     if _profile is None:
-        _profile = os.path.join(_bindir, 'marcoporo.profile')
+        _profile = os.path.join(_bin, 'marcoporo.profile')
     if os.path.exists(_profile):
         with open (_profile, 'r') as in_fp:
             for line in in_fp:
@@ -77,22 +75,14 @@ import argparse
 import random
 import time
 
-# ============================================================================ #
-
 def run_subtool(parser, args, P, mylogger, myhandler):
-    if args.command == 'move':
-        import move as submodule
-    elif args.command == 'extract':
-        import extract as submodule
-    elif args.command == 'map':
-        import map as submodule
+    if args.command == 'seqparams':
+        import seqparams as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super(ArgumentParserWithDefaults, self).__init__(*args, **kwargs)
-
-# ============================================================================ #
 
 def main():
 
@@ -108,21 +98,25 @@ def main():
   # Create the individual tool parsers
 
     p01 = subparsers.add_parser('seqparams', help='Extract sequencing parameters')
-    p01.add_argument('-bindir', dest='bindir', metavar='DIR', required=True, default=None,
-        help='Absolute path to marcoporo scripts dir')
-    p01.add_argument('-profile', dest='profile', metavar='FILE', required=True, default=None,
-        help='Absolute path to marcoporo scripts dir')
-    p01.add_argument('-config', dest='config', metavar='FILE', required=True, default=None,
-        help='Machine-specific configuration file')
+    p01.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p01.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p01.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
     p01.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
-        help='List of experiments and analysis parameters [experiment.txt]')
+        help='Experiments and analysis parameters')
+    p01.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10,
+        help='Number of FAST5 files to inspect from each expt to infer constant attributes.')
+    p01.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
     p01.set_defaults(func=run_subtool)
 
   # Parse the arguments
 
     args = parser.parse_args()
-    if not args.bindir or args.bindir is None:
-        args.bindir = _bindir
+    if not args.bin or args.bin is None:
+        args.bin = _bin
     if not args.profile or args.profile is None:
         args.profile = _profile
 
@@ -181,5 +175,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# ============================================================================ #
