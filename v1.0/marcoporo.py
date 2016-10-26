@@ -76,8 +76,8 @@ import random
 import time
 
 def run_subtool(parser, args, P, mylogger, myhandler):
-    if args.command == 'seqparams':
-        import seqparams as submodule
+    if args.command == 'runmeta':
+        import runmeta as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
@@ -97,7 +97,7 @@ def main():
 
   # Create the individual tool parsers
 
-    p01 = subparsers.add_parser('seqparams', help='Extract sequencing parameters')
+    p01 = subparsers.add_parser('runmeta', help='Extract sequencing parameters')
     p01.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
     p01.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,

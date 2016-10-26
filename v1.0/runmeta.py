@@ -9,7 +9,7 @@ import random
 import marcoporoversion
 
 _mylogger = None
-_processname = 'seqparams'
+_processname = 'runmeta'
 _fast5samplesize = 3
 
 def Merge_DictPairs(D):
@@ -76,14 +76,14 @@ def Process(args, P, mylogger, myhandler, processname):
     for var in uniquevarL:
         row = [var] + [C[exptid][var] if C[exptid].has_key(var) else '' for exptid in exptidL]
         resultL.append(row)
-  # Save table as TSV to outdir/seqparams.txt
+  # Save table as TSV to outdir/runmeta.txt
     if not os.path.exists(args.outdir):
         try:
             os.makedirs(args.outdir)
         except:
             mylogger.error('Failed to create outdir ({0})'.format(args.outdir))
             sys.exit(P.err_code('ErrorDirCreate'))
-    outpath = os.path.join(args.outdir, 'seqparams.txt')
+    outpath = os.path.join(args.outdir, 'runmeta.txt')
     with open(outpath, 'w') as out_fp:
         for row in resultL:
             out_fp.write('{0}\n'.format('\t'.join([str(x) for x in row])))
