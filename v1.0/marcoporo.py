@@ -97,7 +97,8 @@ def main():
 
   # Create the individual tool parsers
 
-    p01 = subparsers.add_parser('runmeta', help='Extract sequencing parameters')
+    p01 = subparsers.add_parser('runmeta', help='Extract sequencing parameters',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p01.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
     p01.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
