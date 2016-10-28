@@ -88,6 +88,8 @@ def Process(args, P, mylogger, myhandler, processname):
         for row in resultL:
             out_fp.write('{0}\n'.format('\t'.join([str(x) for x in row])))
 
+  # Save fields that are constant across the run to outdir/expt_attributes.txt
+
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
