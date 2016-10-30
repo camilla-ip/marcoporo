@@ -9,7 +9,7 @@ import random
 import marcoporoversion
 
 _mylogger = None
-_processname = 'runmeta'
+_processname = 'extract'
 _fast5samplesize = 3
 
 def Merge_DictPairs(D):
@@ -44,10 +44,14 @@ def Extract_Attributes(fast5_path):
     hdf.close()
     return attribute
 
-def Process(args, P, mylogger, myhandler, processname):
+def Compute_Share(args, P, mylogger, myhandler, processname, E):
+    'Compute table of softed experiment-level attributes for each experiment.'
 
-  # Read the experiments file
-    E = P.expt_read(args.experiments)
+  # Exit with message if this information not required
+    if not args.share:
+        mylogger.info('Not computing the table of fields shared across each experiment.')
+        return 0
+    mylogger.info('Start computing table of fields shared across each experiment.')
 
   # For each experiment
     C = {}
@@ -68,33 +72,58 @@ def Process(args, P, mylogger, myhandler, processname):
 
   # Collate a table of fields vs exptid of all common fields, with
   # fields sorted alphabetically and exptid in the same order as in experiments.txt file
-    resultL = []
+    resultD = {}
     varsetL = [set(C[exptid].keys()) for exptid in C.keys()]
     uniquevarL = list(set.union(*varsetL))
     uniquevarL.sort()
-    resultL.append(['Parameter'] + exptidL)
+    #resultL.append(['Parameter'] + exptidL)
     for var in uniquevarL:
-        row = [var] + [C[exptid][var] if C[exptid].has_key(var) else '' for exptid in exptidL]
-        resultL.append(row)
-  # Save table as TSV to outdir/runmeta.txt
+        #row = [var] + [C[exptid][var] if C[exptid].has_key(var) else '' for exptid in exptidL]
+        resultD[var] = [C[exptid][var] if C[exptid].has_key(var) else '' for exptid in exptidL]
+  # Create outdir
     if not os.path.exists(args.outdir):
         try:
             os.makedirs(args.outdir)
         except:
             mylogger.error('Failed to create outdir ({0})'.format(args.outdir))
             sys.exit(P.err_code('ErrorDirCreate'))
-    outpath = os.path.join(args.outdir, 'runmeta.txt')
+  # Save table of shared fields and values, and field names one per line
+    varL = resultD.keys()
+    varL.sort()
+    outpath = os.path.join(args.outdir, 'expt_sharedattributes.txt')
     with open(outpath, 'w') as out_fp:
-        for row in resultL:
-            out_fp.write('{0}\n'.format('\t'.join([str(x) for x in row])))
+        out_fp.write('{0}\n'.format('\t'.join(['Attribute'] + exptidL)))
+        for var in varL:
+            out_fp.write('{0}\n'.format('\t'.join([var] + [str(x) for x in resultD[var]])))
 
-  # Save fields that are constant across the run to outdir/expt_attributes.txt
+#  # Save fields that are constant across the run
+#    outpath = os.path.join(args.outdir, 'expt_sharedfieldnames.txt')
+#    with open(outpath, 'w') as out_fp:
+#        for var in varL:
+#            out_fp.write('{0}\n'.format(var))
 
+    mylogger.info('Finished computing table of fields shared across each experiment (expt_share_[values|fields].txt).')
+    return 0
+
+def Iterate_Fast5(args, P, mylogger, myhandler, processname, E):
+    'Iterate through each FAST5 file and store the info specified in the command-line flags.'
+
+    if not (args.fastq or args.model or args.pairs or args.stats):
+        mylogger.info('Not iterating over all the FAST5 read files for each experiment.')
+        return 0
+    mylogger.info('Start iterating across all FAST5 files.')
+    mylogger.info('Finished iterating across all FAST5 files.')
+    return 0
+
+def Process(args, P, mylogger, myhandler, processname):
+    E = P.expt_read(args.experiments)
+    Compute_Share(args, P, mylogger, myhandler, processname, E)
+    Iterate_Fast5(args, P, mylogger, myhandler, processname, E)
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
     global _mylogger
     _mylogger = mylogger
-    mylogger.info('_processname: Started'.format(_processname))
+    mylogger.info('{0}: Started'.format(_processname))
     Process(args, P, mylogger, myhandler, _processname)
-    mylogger.info('_processname: Finished'.format(_processname))
+    mylogger.info('{0}: Finished'.format(_processname))
