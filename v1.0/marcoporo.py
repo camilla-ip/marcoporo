@@ -76,7 +76,9 @@ import random
 import time
 
 def run_subtool(parser, args, P, mylogger, myhandler):
-    if args.command == 'extract':
+    if args.command == 'exptconstants':
+        import exptconstants as submodule
+    elif args.command == 'extract':
         import extract as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
@@ -97,7 +99,7 @@ def main():
 
   # Create the individual tool parsers
 
-    p01 = subparsers.add_parser('extract', help='Extract sequencing parameters',
+    p01 = subparsers.add_parser('exptconstants', help='Tabulate constant experimental attributes',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p01.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
@@ -107,31 +109,37 @@ def main():
         help='Analysis configuration file')
     p01.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
-    p01.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=100,
+    p01.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=250,
         help='Number of FAST5 files to inspect from each expt to infer constant attributes.')
     p01.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
-    p01.add_argument('-share', dest='share', metavar='BOOL', required=False, default='True',
-        help='Shared experiment attributes and their values')
-    p01.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
-        help='1D and 2D basecalls')
-    p01.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
-        help='Model parameters used in basecalling')
-    p01.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
-        help='Name-value pairs for each experiment and read attribute')
-    p01.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
-        help='Single-row summary stats for each experiment and read')
-
     p01.set_defaults(func=run_subtool)
+
+    p02 = subparsers.add_parser('extract', help='Extract sequencing parameters',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p02.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p02.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p02.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    p02.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='Experiments and analysis parameters')
+    p02.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
+    p02.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
+        help='1D and 2D basecalls')
+    p02.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
+        help='Model parameters used in basecalling')
+    p02.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
+        help='Name-value pairs for each experiment and read attribute')
+    p02.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
+        help='Single-row summary stats for each experiment and read')
+    p02.set_defaults(func=run_subtool)
 
   # Parse the arguments
 
     args = parser.parse_args()
-    args.share = _P.str_2bool(args.share)
-    args.fastq = _P.str_2bool(args.fastq)
-    args.model = _P.str_2bool(args.model)
-    args.pairs = _P.str_2bool(args.pairs)
-    args.stats = _P.str_2bool(args.stats)
     if not args.bin or args.bin is None:
         args.bin = _bin
     if not args.profile or args.profile is None:

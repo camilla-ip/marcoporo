@@ -126,6 +126,9 @@ class marcoporolib(object):
         keeptype should be 'all' or 'paramsonly'.
         The code is so ugly because lots of the data access stuff only works in
         particular ONT FAST5 file versions.
+        attributeD[attribute] = [TYPE, VALUE] and includes internal attribute 'paths'
+        runnumberD[SECTION_NNNN] = [SECTION_NNNN, NNNN]
+        readnumberD['Read_NNNN'] = ['Read_NNNN', 'NNNN']
         '''
         attributeD = {}
         hdf = h5py.File(fast5path, 'r')
@@ -265,8 +268,9 @@ class marcoporolib(object):
     # expt
 
     def expt_read(self, exptfile):
-        'Parse the experiments.txt file and return data in a dict E[rownumber] = { var: val, ...}'
-        E = []
+        'Parse the experiments.txt file and return data in a list of exptids and dict E[exptid] = { var: val, ...}'
+        E = {}
+        exptidL = []
         columns = []
         rows = []
         with open(exptfile, 'r') as in_fp:
@@ -277,8 +281,12 @@ class marcoporolib(object):
                     columns = line.rstrip('\n').split('\t')
                 else:
                     L = line.rstrip('\n').split('\t')
-                    E.append(dict(itertools.izip(columns, L)))
-        return E
+                    elt = dict(itertools.izip(columns, L))
+                    exptid = elt['exptid']
+                    exptidL.append(exptid)
+                    del elt['exptid']
+                    E[exptid] = elt
+        return exptidL, E
 
     # dmn
 
