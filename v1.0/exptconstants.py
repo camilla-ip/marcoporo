@@ -68,8 +68,11 @@ def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
         for fast5 in fast5L:
              attributeD, runnumberD, readnumberD = P.fast5_attributes(fast5, 'all')
              #attrDbestN = Filter_Attributes(attributeD)
-             attrDbestN = P.fast5_attributes_filter(attributeD, E[exptid]['basecallN'])
-             M[fast5] = attributeD
+             attrDbestN, filterok = P.fast5_attributes_filter(attributeD, E[exptid]['basecallN'])
+             if not filterok:
+                 mylogger.error('Failed to filter basecallN in attributes, skipping file ({0})'.format(fast5))
+                 continue
+             M[fast5] = attrDbestN
       # Keep the fields that are constant in this experiment C[exptid] = {var:val, ...}
         C[exptid] = Merge_DictPairs(M)
 
