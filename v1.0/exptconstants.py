@@ -32,6 +32,23 @@ def Merge_DictPairs(D):
             elt[var] = foundL[0]
     return elt
 
+#def Filter_Attributes(attrD, bestN):
+#    'Return copy of attrD minus elements of non-bestN attributes.'
+#    attrDbestN = {}
+#    for attr in attrD.keys():
+#        K = attr.split('/')
+#        NNN = K[1].split('_')[-1] if len(K) >= 2 else ''
+#        matches = (len(NNN)!=3) or (NNN.isdigit() and NNN == bestN)
+#        if matches:
+#            L = K[1].split('_')
+#            L[-1] = 'NNN'
+#            K[1] = '_'.join(L)
+#            attrcleaned = '/'.join(K)
+#            attrDbestN[attrcleaned] = attrD[attr]
+#        else:
+#            attrDbestN[attr] = attrD[attr]
+#    return attrDbestN
+
 def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
     'Compute table of softed experiment-level attributes for each experiment.'
 
@@ -50,6 +67,8 @@ def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
         M = {}
         for fast5 in fast5L:
              attributeD, runnumberD, readnumberD = P.fast5_attributes(fast5, 'all')
+             #attrDbestN = Filter_Attributes(attributeD)
+             attrDbestN = P.fast5_attributes_filter(attributeD, E[exptid]['basecallN'])
              M[fast5] = attributeD
       # Keep the fields that are constant in this experiment C[exptid] = {var:val, ...}
         C[exptid] = Merge_DictPairs(M)
@@ -74,14 +93,14 @@ def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
   # Save table of shared fields and values, and field names one per line
     varL = resultD.keys()
     varL.sort()
-    outpath = os.path.join(args.outdir, 'exptconstants.txt')
+    outpath = os.path.join(args.outdir, P.file_exptconstants())
     with open(outpath, 'w') as out_fp:
         out_fp.write('{0}\n'.format('\t'.join(['Attribute'] + exptidL)))
         for var in varL:
             out_fp.write('{0}\n'.format('\t'.join([var] + [str(x) for x in resultD[var]])))
 
-  # Save fields that are constant across the run
-    outpath = os.path.join(args.outdir, 'exptconstantfields.txt')
+  # Save fields, with each _??? replaced by _NNN, that are constant across the run
+    outpath = os.path.join(args.outdir, P.file_exptconstantfields())
     with open(outpath, 'w') as out_fp:
         for var in varL:
             out_fp.write('{0}\n'.format(var))

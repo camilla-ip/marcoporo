@@ -120,16 +120,18 @@ class marcoporolib(object):
             result = result.replace('<type \'', '').replace('\'>', '')
         return result
 
-    def fast5_attributes(self, fast5path, keeptype='all'):
+    def fast5_attributes(self, fast5path, fieldkeep='all'):
         '''
         Return dictionaries containing the attributes.
-        keeptype should be 'all' or 'paramsonly'.
+        fieldkeep should be 'all' or 'paramsonly'.
         The code is so ugly because lots of the data access stuff only works in
         particular ONT FAST5 file versions.
+        The return values are:
         attributeD[attribute] = [TYPE, VALUE] and includes internal attribute 'paths'
         runnumberD[SECTION_NNNN] = [SECTION_NNNN, NNNN]
         readnumberD['Read_NNNN'] = ['Read_NNNN', 'NNNN']
         '''
+      # Initialise
         attributeD = {}
         hdf = h5py.File(fast5path, 'r')
         list_of_names = []
@@ -138,7 +140,8 @@ class marcoporolib(object):
       # e.g., runnumberD['Basecall_1D_NNN'] = ['Basecall_1D_000', '000']
         runnumberD = {}
         for name in list_of_names:
-            matchL = [x for x in name.split('/') if 'read' not in x.lower() and self.fast5_runnumberpattern.match(x) is not None]
+            matchL = [x for x in name.split('/') \
+                if 'read' not in x.lower() and self.fast5_runnumberpattern.match(x) is not None]
             for match in matchL:
                 tokenL = match.split('_')
                 if len(tokenL) > 1:
@@ -176,7 +179,8 @@ class marcoporolib(object):
             if fieldtype == 'dataset':
                 typename = 'UNKNOWN'
                 try:
-                    typename = self.fast5_cleantype(','.join([str(hdf[name][()].dtype[i]) for i in range(0, len(hdf[name][()].dtype.names))]))
+                    typename = self.fast5_cleantype(','.join(
+                        [str(hdf[name][()].dtype[i]) for i in range(0, len(hdf[name][()].dtype.names))]))
                     key = '{0}({1})'.format(name, ','.join([x for x in hdf[name][()].dtype.names]))
                     val = '({0})'.format(','.join([str(x) for x in hdf[name][()][0]]))
                     attributeD[key] = [typename, val]
@@ -211,7 +215,7 @@ class marcoporolib(object):
                 itemL = hdf[name].attrs.items()
                 for item in itemL:
                     attr, val = item
-                    if keeptype == 'all' or (keeptype == 'paramsonly' and name+'/'+attr in paramL):
+                    if fieldkeep == 'all' or (fieldkeep == 'paramsonly' and name+'/'+attr in paramL):
                         if type(hdf[name].attrs[attr]) == np.ndarray:
                             val = ''.join(hdf[name].attrs[attr])
                         typename = self.fast5_cleantype(str(type(hdf[name].attrs[attr])))
@@ -222,6 +226,45 @@ class marcoporolib(object):
                 pass
         hdf.close()
         return attributeD, runnumberD, readnumberD
+
+    def fast5_attributes_filter(self, attributeD, Nkeep='all'):
+        '''
+        Given the attributeD from fast5_attributes(), remove
+        all that do not match the Nkeep criterion, which should
+        be either 'all' or the integer representing the N-th
+        basecalling instance to be retained. If an attribute
+        does not have a _NNN in its attribute path, it will be
+        retained. The return values are of the format:
+        attributeD[attribute] = [TYPE, VALUE] and includes internal attribute 'paths'
+        filteredok = boolean
+        '''
+        if Nkeep == 'all':
+            return attributeD, True
+        if not Nkeep.isdigit():
+            return attributeD, False
+        Nkeepint = int(Nkeep)
+        filteredD = {}
+        keyL = attributeD.keys()
+        keyL.sort()
+        for key in keyL:
+          # Regex implementation
+            if re.match(r'.*/.*_(\d*)/.*', key):
+                newkey = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', key)
+                filteredD[newkey] = attributeD[key]
+            else:
+                filteredD[key] = attributeD[key]
+          # Non-regex implementation
+            #keypartL = key.split('/')
+            #secondfieldL = keypartL[1].split('_')
+            #hasNNN = len(secondfieldL)>1 and secondfieldL[-1].isdigit()
+            #if not hasNNN:
+            #    filteredD[key] = attributeD[key]
+            #else:
+            #    if int(secondfieldL[-1])==Nkeepint):
+            #        keypartL[-1] = 'N'*len(NNN)
+            #        newkey = '/'.join(keypartL)
+            #        filteredD[newkey] = attributeD[key] 
+        return filteredD, True
 
     # conf
 
@@ -388,3 +431,11 @@ class marcoporolib(object):
             self.lasterr = 'Failed to kill pids: {0}'.format(','.join([str(x) for x in faillist]))
             return False
         return True
+
+  # file
+
+    def file_exptconstants(self):
+        return 'exptconstants.txt'
+
+    def file_exptconstantfields(self):
+        return 'exptconstantfields.txt'
