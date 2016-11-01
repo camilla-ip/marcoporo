@@ -227,6 +227,14 @@ class marcoporolib(object):
         hdf.close()
         return attributeD, runnumberD, readnumberD
 
+    def fast5_attribute_to_NNN(self, word):
+        'Replace SOMETHING/SOMETHING_\d*/SOMETHING with SOMETHING/SOMETHING_NNN/SOMETHING.'
+      # Changed this because it only replaces the last instance of _\d\d\d
+        new = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', word)
+      # ... while this replaces every instance of _\d\d\d
+        new = re.sub(r'_(\d\d\d)', r'_NNN', word)
+        return new
+
     def fast5_attributes_filter(self, attributeD, Nkeep='all'):
         '''
         Given the attributeD from fast5_attributes(), remove
@@ -249,7 +257,8 @@ class marcoporolib(object):
         for key in keyL:
           # Regex implementation
             if re.match(r'.*/.*_(\d*)/.*', key):
-                newkey = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', key)
+                #newkey = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', key)
+                newkey = self.fast5_attribute_to_NNN(key)
                 filteredD[newkey] = attributeD[key]
             else:
                 filteredD[key] = attributeD[key]

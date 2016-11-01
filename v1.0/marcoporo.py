@@ -156,15 +156,16 @@ def main():
     now = time.localtime()
     logdir = None
     try:
-        logdir = _P.option['move']['logdir']
+        logdir = _P.option['program']['logdir']
     except:
-        pass
-    if logdir is None:
-        try:
-            logdir = _P.option['program']['logdir']
-        except:
-            sys.stderr.write('Error: Failed to set log dir\n')
-            sys.exit(_P.err_code('ErrorDirCreate'))
+        sys.stderr.write('Error: Failed to set log dir\n')
+        sys.exit(_P.err_code('ErrorDirCreate'))
+    #if logdir is None:
+    #    try:
+    #        logdir = _P.option['program']['logdir']
+    #    except:
+    #        sys.stderr.write('Error: Failed to set log dir\n')
+    #        sys.exit(_P.err_code('ErrorDirCreate'))
 
     if not os.path.exists(logdir):
         os.makedirs(logdir)
