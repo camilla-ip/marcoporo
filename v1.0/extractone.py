@@ -10,29 +10,17 @@ import sys
 
 import marcoporoversion
 
-_mylogger = None
 _processname = 'extractone'
 _fast5samplesize = 3
 _batchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
 _exptpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
 _readpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
 
-def Get_BasecallN(attr):
-    '''
-    Assumes attributes like Analyses/Basecall_1D_000/Configuration/general/sampling_rate
-    where basecallN is always the last token in the second part of the attribute path.
-    '''
-    basecallN = 'NA'
-    keypartL = attr.split('/')
-    if len(keypartL) >= 2: 
-        lastpart = keypartL[1].split('_')[-1]
-        if lastpart.isdigit():
-            basecallN = lastpart
-    return basecallN
-
 def Get_Batchid(fast5path):
-  # For inferring batchids, can cope with fast5 files like:
-  # MinION2_20160802_FNFAD22824_MN16454_sequencing_run_Chip93_MARC_R9_1D_UBC_77825_ch100_read249_strand.fast5
+    '''
+    For inferring batchids, can cope with fast5 files like:
+    MinION2_20160802_FNFAD22824_MN16454_sequencing_run_Chip93_MARC_R9_1D_UBC_77825_ch100_read249_strand.fast5 -> 77825
+    '''
     batchid = ''
     file = os.path.basename(fast5path)
     filestem = '.'.join(file.split('.')[0:-1])
@@ -51,7 +39,6 @@ def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, con
         attrL = attrD.keys()
         attrL.sort()
         for attr in attrL:
-            #basecallN = Get_BasecallN(attr)
             var = attr
             val = attrD[var][1]
             newvar = P.fast5_attribute_to_NNN(attr)
@@ -71,15 +58,10 @@ def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, con
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptbasecallN, constD, fp):
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
-
     mylogger.info('Processing experiment {0}'.format(exptid))
-
-  # Write the header rows
     if args.pairs:
         fp['exptpair'].write('{0}\n'.format('\t'.join(_exptpairH)))
         fp['readpair'].write('{0}\n'.format('\t'.join(_readpairH)))
-
-  # Iterate across all FAST5 files
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
@@ -99,8 +81,6 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
         if fcnt == maxfiles:
             break
         Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(faildir, fast5), 'fail', fp, constD, exptbasecallN)
-        
-    #mylogger.info('Experiment {0} : Processing finished'.format(exptid))
 
 def Files_Open(outpathD):
     fp = {}
@@ -140,10 +120,7 @@ def PairFiles_Open(outdir, exptid):
     return fp
 
 def FastqFiles_Open(outdir, exptid, passdir, faildir):
-    #passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
-    #faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
     outpathD = {
-      # -fastq
         'fq1Tpass' : os.path.join(outdir, '{exptid}_1T_pass.fastq'.format(exptid=exptid)),
         'fq1Tfail' : os.path.join(outdir, '{exptid}_1T_fail.fastq'.format(exptid=exptid)),
         'fq1Cpass' : os.path.join(outdir, '{exptid}_1C_pass.fastq'.format(exptid=exptid)),
@@ -169,14 +146,6 @@ def StatsFiles_Open(outdir, exptid):
     fp = Files_Open(outpathD)
     return fp
 
-#def Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD, fp):
-#    'Iterate through each FAST5 file and store the info specified in the command-line flags.'
-#    mylogger.info('Start iterating across all FAST5 files.')
-#    for exptid in exptidL:
-#        Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, E[exptid]['dirpath'], E[exptid]['basecallN'], constD, fp)
-#    mylogger.info('Finished iterating across all FAST5 files.')
-#    return 0
-
 def Prerequisites(args, P, mylogger, myhandler, processname):
     'Exit program if some prerequisites are not met.'
     exptconstants_path = os.path.join(args.outdir, P.file_exptconstants())
@@ -185,14 +154,12 @@ def Prerequisites(args, P, mylogger, myhandler, processname):
         sys.exit(P.err_code('ErrorFileMissing'))
 
 def Process(args, P, mylogger, myhandler, processname):
-  # Read file of constant field names produced by 'marcoporo exptconstants'
+    'Read file of constant field names produced by marcoporo exptconstants.'
     exptconstants_path = os.path.join(args.outdir, P.file_exptconstants())
-    #exptidL, E = P.expt_read(args.experiments)
     constL = open(os.path.join(args.outdir, P.file_exptconstantfields()), 'r').read().strip().split('\n')
     constD = dict(itertools.izip(constL, len(constL)*[None]))
     if args.fastq or args.model or args.pairs or args.stats:
         fp = PairFiles_Open(args.outdir, args.exptid)
-        #Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD, fp)
         Extract_Expt_Data(args, P, mylogger, myhandler, processname, args.exptid, args.indir, args.basecallN, constD, fp)
         Files_Close(fp)
     else:
@@ -200,8 +167,7 @@ def Process(args, P, mylogger, myhandler, processname):
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
-    global _mylogger
-    _mylogger = mylogger
+    'Execute this sub-tool.'
     mylogger.info('Started')
     args.fastq = P.str_2bool(args.fastq)
     args.model = P.str_2bool(args.model)
@@ -210,4 +176,3 @@ def run(parser, args, P, mylogger, myhandler, argv):
     Prerequisites(args, P, mylogger, myhandler, _processname)
     Process(args, P, mylogger, myhandler, _processname)
     mylogger.info('Finished')
-
