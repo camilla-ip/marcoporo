@@ -78,6 +78,8 @@ import time
 def run_subtool(parser, args, P, mylogger, myhandler):
     if args.command == 'exptconstants':
         import exptconstants as submodule
+    elif args.command == 'extractone':
+        import extractone as submodule
     elif args.command == 'extract':
         import extract as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
@@ -115,7 +117,7 @@ def main():
         help='Output directory (specify absolute path)')
     p01.set_defaults(func=run_subtool)
 
-    p02 = subparsers.add_parser('extract', help='Extract sequencing parameters',
+    p02 = subparsers.add_parser('extract', help='Extract required data from all experiments',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p02.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
@@ -138,6 +140,34 @@ def main():
     p02.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10000000,
         help='Number of FAST5 files to inspect from each expt, useful for testing.')
     p02.set_defaults(func=run_subtool)
+
+    p03 = subparsers.add_parser('extractone', help='Extract data from one experiment',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p03.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p03.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p03.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    p03.add_argument('-exptid', dest='exptid', metavar='FILE', required=True, default=None,
+        help='Experiment identifier')
+    p03.add_argument('-indir', dest='indir', metavar='FILE', required=True, default=None,
+        help='Experiment runfolder ')
+    p03.add_argument('-basecallN', dest='basecallN', metavar='FILE', required=False, default='000',
+        help='The NNN basecalling instance to extract data from')
+    p03.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
+    p03.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
+        help='1D and 2D basecalls')
+    p03.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
+        help='Model parameters used in basecalling')
+    p03.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
+        help='Name-value pairs for each experiment and read attribute')
+    p03.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
+        help='Single-row summary stats for each experiment and read')
+    p03.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10000000,
+        help='Number of FAST5 files to inspect from each expt, useful for testing.')
+    p03.set_defaults(func=run_subtool)
 
   # Parse the arguments
 
