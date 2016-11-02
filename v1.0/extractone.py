@@ -13,8 +13,8 @@ import marcoporoversion
 _processname = 'extractone'
 _fast5samplesize = 3
 _batchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
-_exptpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
-_readpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
+_exptpairsH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
+_readpairsH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
 
 def Get_Batchid(fast5path):
     '''
@@ -44,24 +44,24 @@ def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, con
             newvar = P.fast5_attribute_to_NNN(attr)
             if constD.has_key(newvar):
                 row = [exptid, batchid, basecallN, newvar, val]
-                fpD['exptpair'].write('{0}\n'.format('\t'.join(row)))
+                fpD['exptpairs'].write('{0}\n'.format('\t'.join(row)))
             else:
                 try:
                     readid = attrD['Analyses/EventDetection_{0}/Configuration/general/uuid'.format(basecallN)][1]
                 except:
                     readid = 'NK'	# Need to change this to something based on the filename (chN and readN)
                 row = [exptid, batchid, readid, basecallN, newvar, val]
-                fpD['readpair'].write('{0}\n'.format('\t'.join(row)))
-    fpD['exptpair'].flush()
-    fpD['readpair'].flush()
+                fpD['readpairs'].write('{0}\n'.format('\t'.join(row)))
+    fpD['exptpairs'].flush()
+    fpD['readpairs'].flush()
     return 0
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptbasecallN, constD, fp):
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
     mylogger.info('Processing experiment {0}'.format(exptid))
     if args.pairs:
-        fp['exptpair'].write('{0}\n'.format('\t'.join(_exptpairH)))
-        fp['readpair'].write('{0}\n'.format('\t'.join(_readpairH)))
+        fp['exptpairs'].write('{0}\n'.format('\t'.join(_exptpairsH)))
+        fp['readpairs'].write('{0}\n'.format('\t'.join(_readpairsH)))
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
@@ -113,8 +113,8 @@ def Files_Close(fp):
 def PairFiles_Open(outdir, exptid):
     outpathD = {
         'batch': os.path.join(outdir, '{exptid}_batch.txt'.format(exptid=exptid)),
-        'exptpair' : os.path.join(outdir, '{exptid}_exptpair.txt'.format(exptid=exptid)),
-        'readpair' : os.path.join(outdir, '{exptid}_readpair.txt'.format(exptid=exptid))
+        'exptpairs' : os.path.join(outdir, '{exptid}_exptpairs.txt'.format(exptid=exptid)),
+        'readpairs' : os.path.join(outdir, '{exptid}_readpairs.txt'.format(exptid=exptid))
     }
     fp = Files_Open(outpathD)
     return fp
