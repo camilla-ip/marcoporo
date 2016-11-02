@@ -66,7 +66,7 @@ def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
       # Extract all metadata
         M = {}
         for fast5 in fast5L:
-             attributeD, runnumberD, readnumberD = P.fast5_attributes(fast5, 'all')
+             attributeD, runnumberD, readnumberD = P.fast5_attributes(fast5, 'all', True)
              #attrDbestN = Filter_Attributes(attributeD)
              attrDbestN, filterok = P.fast5_attributes_filter(attributeD, E[exptid]['basecallN'])
              if not filterok:

@@ -120,7 +120,7 @@ class marcoporolib(object):
             result = result.replace('<type \'', '').replace('\'>', '')
         return result
 
-    def fast5_attributes(self, fast5path, fieldkeep='all'):
+    def fast5_attributes(self, fast5path, fieldkeep='all', ignoredatasets=True):
         '''
         Return dictionaries containing the attributes.
         fieldkeep should be 'all' or 'paramsonly'.
@@ -163,6 +163,14 @@ class marcoporolib(object):
                         readnumberD[key] = [match, n]
       # Extract all the datasets and attributes
         for name in list_of_names:
+            #if 'Analyses/Basecall_1D_000/BaseCalled_complement/Events' in name:
+            #    pass
+            #if 'Analyses/Basecall_1D_000/BaseCalled_template/Events' in name:
+            #    pass
+            #if 'Analyses/Basecall_2D_000/BaseCalled_2D/Alignment' in name:
+            #    pass
+            #if 'Analyses/Basecall_2D_000/HairpinAlign/Alignment' in name:
+            #    pass
             fieldtype = 'unknown'
             if type(hdf[name]) == h5py._hl.dataset.Dataset:
                 fieldtype = 'dataset'
@@ -177,23 +185,25 @@ class marcoporolib(object):
                 fieldtype = 'unknown'
 
             if fieldtype == 'dataset':
-                typename = 'UNKNOWN'
-                try:
-                    typename = self.fast5_cleantype(','.join(
-                        [str(hdf[name][()].dtype[i]) for i in range(0, len(hdf[name][()].dtype.names))]))
-                    key = '{0}({1})'.format(name, ','.join([x for x in hdf[name][()].dtype.names]))
-                    val = '({0})'.format(','.join([str(x) for x in hdf[name][()][0]]))
-                    attributeD[key] = [typename, val]
-                except:
-                    pass
-                if typename == 'UNKNOWN':
+                if not ignoredatasets:
+                    print('Debug: Have dataset *{name}*'.format(name=name))
+                    typename = 'UNKNOWN'
                     try:
-                        typename = self.fast5_cleantype(type(hdf[name][()]))
-                        key = '{0}({1})'.format(name, 'typename')
+                        typename = self.fast5_cleantype(','.join(
+                            [str(hdf[name][()].dtype[i]) for i in range(0, len(hdf[name][()].dtype.names))]))
+                        key = '{0}({1})'.format(name, ','.join([x for x in hdf[name][()].dtype.names]))
                         val = '({0})'.format(','.join([str(x) for x in hdf[name][()][0]]))
                         attributeD[key] = [typename, val]
                     except:
                         pass
+                    if typename == 'UNKNOWN':
+                        try:
+                            typename = self.fast5_cleantype(type(hdf[name][()]))
+                            key = '{0}({1})'.format(name, 'typename')
+                            val = '({0})'.format(','.join([str(x) for x in hdf[name][()][0]]))
+                            attributeD[key] = [typename, val]
+                        except:
+                            pass
             elif fieldtype == 'string':
                 typename = 'UNKNOWN'
                 try:
@@ -230,9 +240,11 @@ class marcoporolib(object):
     def fast5_attribute_to_NNN(self, word):
         'Replace SOMETHING/SOMETHING_\d*/SOMETHING with SOMETHING/SOMETHING_NNN/SOMETHING.'
       # Changed this because it only replaces the last instance of _\d\d\d
-        new = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', word)
-      # ... while this replaces every instance of _\d\d\d
-        new = re.sub(r'_(\d\d\d)', r'_NNN', word)
+        #new = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', word)
+      # ... while this replaces every instance of _\d\d\d, which is still wrong because then it does the 'Read_NNN[N]* as well ...
+        #new = re.sub(r'_(\d\d\d)', r'_NNN', word)
+      # ... so trying this one
+        new = re.sub(r'(.*?)/(.*?)_(\d*)/(.*)', r'\1/\2_NNN/\4', word)
         return new
 
     def fast5_attributes_filter(self, attributeD, Nkeep='all'):
