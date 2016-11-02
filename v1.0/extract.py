@@ -16,8 +16,6 @@ _fast5samplesize = 3
 _ontbatchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
 _ontexptpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
 _ontreadpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
-_maxreadfilestoprocess = 10
-#_maxreadfilestoprocess = 10000000
 
 def Get_BasecallN(attr):
     '''
@@ -87,14 +85,14 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
     passL = [x for x in os.listdir(passdir) if x.endswith('.fast5')]
     failL = [x for x in os.listdir(faildir) if x.endswith('.fast5')]
-    maxfiles = min(_maxreadfilestoprocess, len(passL))
+    maxfiles = min(args.samplesize, len(passL))
     fcnt = 0
     for fast5 in passL:
         fcnt += 1
         if fcnt == maxfiles:
             break
         Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(passdir, fast5), 'pass', fp, constD, exptbasecallN)
-    maxfiles = min(_maxreadfilestoprocess, len(failL))
+    maxfiles = min(args.samplesize, len(failL))
     fcnt = 0
     for fast5 in failL:
         fcnt += 1

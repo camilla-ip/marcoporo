@@ -135,6 +135,8 @@ def main():
         help='Name-value pairs for each experiment and read attribute')
     p02.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
         help='Single-row summary stats for each experiment and read')
+    p02.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10000000,
+        help='Number of FAST5 files to inspect from each expt, useful for testing.')
     p02.set_defaults(func=run_subtool)
 
   # Parse the arguments
