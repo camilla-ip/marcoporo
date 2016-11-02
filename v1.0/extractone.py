@@ -32,7 +32,7 @@ def Get_Batchid(fast5path):
 def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, constD, basecallN):
     'Open the FAST5 file, extract all requested information, write it to the file pointer.'
     mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1}\n'.format(exptid, readclass))
-    attrD,runnumberD, readnumberD  = P.fast5_attributes(fast5path, 'all', True)
+    attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, basecallN, True, True, True, True)
     filteredattrD, filterok = P.fast5_attributes_filter(attrD, basecallN)
     batchid = Get_Batchid(fast5path)
     if args.pairs:
@@ -89,6 +89,7 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
         if batchid is not None and not batchD.has_key(batchid):
             batchD[batchid] = [exptid, batchid, '', args.basecallN]
             fp['batch'].write('{0}\n'.format('\t'.join(batchD[batchid])))
+            fp['batch'].flush()
 
 def Files_Open(outpathD):
     fp = {}

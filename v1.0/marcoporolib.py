@@ -67,7 +67,16 @@ class marcoporolib(object):
         self.fast5_readnumberpattern = re.compile('.*[Rr][Ee][Aa][Dd]_(\d*)$')
 
     # dmn
+
         self._dmn_sighandlerfn = None
+
+    # fast5
+
+        self.fast5fastqpath = {
+            '1T' : [	'Analyses/Basecall_1D_NNN/BaseCalled_template/Fastq' ],
+            '1C' : [	'Analyses/Basecall_1D_NNN/BaseCalled_complement/Fastq' ],
+            '2D' : [	'Analyses/Basecall_2D_NNN/BaseCalled_2D/Fastq' ]
+        }
 
     # err
 
@@ -120,10 +129,10 @@ class marcoporolib(object):
             result = result.replace('<type \'', '').replace('\'>', '')
         return result
 
-    def fast5_attributes(self, fast5path, fieldkeep='all', ignoredatasets=True):
+    def fast5_attributes(self, hdf, ignoredatasets=True):
+    #def fast5_extract(self, fast5path, basecallN, getattributes=True, ignoredatasets=True, getfastq=True, addfastqpath=True):
         '''
         Return dictionaries containing the attributes.
-        fieldkeep should be 'all' or 'paramsonly'.
         The code is so ugly because lots of the data access stuff only works in
         particular ONT FAST5 file versions.
         The return values are:
@@ -132,8 +141,7 @@ class marcoporolib(object):
         readnumberD['Read_NNNN'] = ['Read_NNNN', 'NNNN']
         '''
       # Initialise
-        attributeD = {}
-        hdf = h5py.File(fast5path, 'r')
+        #hdf = h5py.File(fast5path, 'r')
         list_of_names = []
         hdf.visit(list_of_names.append)
       # Create a dictionary that maps all the fields with a run number
@@ -162,15 +170,10 @@ class marcoporolib(object):
                     if n not in readnumberD.keys():
                         readnumberD[key] = [match, n]
       # Extract all the datasets and attributes
+        attributeD = {}
         for name in list_of_names:
-            #if 'Analyses/Basecall_1D_000/BaseCalled_complement/Events' in name:
-            #    pass
-            #if 'Analyses/Basecall_1D_000/BaseCalled_template/Events' in name:
-            #    pass
-            #if 'Analyses/Basecall_2D_000/BaseCalled_2D/Alignment' in name:
-            #    pass
-            #if 'Analyses/Basecall_2D_000/HairpinAlign/Alignment' in name:
-            #    pass
+            if name.endswith('tracking_id'):
+                pass
             fieldtype = 'unknown'
             if type(hdf[name]) == h5py._hl.dataset.Dataset:
                 fieldtype = 'dataset'
@@ -221,11 +224,12 @@ class marcoporolib(object):
                         attributeD[key] = [typename, val]
                     except:
                         pass
-            try:
+            try: # This is the section that gets all the 'normal' attributes from the group names in list_of_names
                 itemL = hdf[name].attrs.items()
                 for item in itemL:
                     attr, val = item
-                    if fieldkeep == 'all' or (fieldkeep == 'paramsonly' and name+'/'+attr in paramL):
+                    #if fieldkeep == 'all' or (fieldkeep == 'paramsonly' and name+'/'+attr in paramL):
+                    if True:
                         if type(hdf[name].attrs[attr]) == np.ndarray:
                             val = ''.join(hdf[name].attrs[attr])
                         typename = self.fast5_cleantype(str(type(hdf[name].attrs[attr])))
@@ -234,9 +238,59 @@ class marcoporolib(object):
                         attributeD[key] = [typename, val]
             except:
                 pass
-        hdf.close()
+
+#      # Extract the fastq records
+#        fastqD = { '1T': None, '1C': None, '2D': None }
+#        for calltype in self.fast5fastqpath.keys():
+#            for genericpath in self.fast5fastqpath[calltype]:
+#                correctpath = re.sub(r'NNN', basecallN, genericpath)
+#                try:
+#                    fqS = string(hdf[correctpath][()]).strip()
+#                    if fast5path is not None:
+#                        L = record.split('\n')
+#                        L[0] += ' {fast5path}'.format(fast5path)
+#                        fqS = '\n'.join(L)
+#                        fastqD[calltype] = L
+#                    break
+#                except:
+#                    pass
+
+      # Close and exit
+        #hdf.close()
         return attributeD, runnumberD, readnumberD
 
+    def fast5_fastq(self, hdf, basecallN, fast5path=None):
+        'Return FASTQ strings from _NNN call instance as D[calltype] = [header, seq, plusline, bq], where calltype=[1T|1C|2D].'
+        fastq = { '1T': None, '1C': None, '2D': None }
+        for calltype in self.fast5fastqpath.keys():
+            for genericpath in self.fast5fastqpath[calltype]:
+                correctpath = re.sub(r'NNN', basecallN, genericpath)
+                try:
+                    fqS = string(hdf[correctpath][()]).strip()
+                    if fast5path is not None:
+                        L = record.split('\n')
+                        L[0] += ' {fast5path}'.format(fast5path)
+                        fqS = '\n'.join(L)
+                        fastq[calltype] = L
+                    break
+                except:
+                    pass
+        return fastq
+
+    def fast5_extract(self, fast5path, basecallN, getattributes=True, ignoredatasets=True, getfastq=True, addfastqpath=True):
+        'Extract attributes and/or fastq.'
+        attributeD = {}
+        runnumberD = {}
+        readnumberD = {}
+        fastqD = {}
+        hdf = h5py.File(fast5path, 'r')
+        if getattributes:
+           attributeD, runnumberD, readnumberD = self.fast5_attributes(hdf, ignoredatasets)
+        if getfastq:
+            fastqD = self.fast5_fastq(hdf, fast5path if addfastqpath else None)
+        hdf.close()
+        return attributeD, runnumberD, readnumberD, fastqD
+    
     def fast5_attribute_to_NNN(self, word):
         'Replace SOMETHING/SOMETHING_\d*/SOMETHING with SOMETHING/SOMETHING_NNN/SOMETHING.'
       # Changed this because it only replaces the last instance of _\d\d\d
