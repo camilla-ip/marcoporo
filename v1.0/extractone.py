@@ -12,7 +12,7 @@ import marcoporoversion
 
 _processname = 'extractone'
 _fast5samplesize = 3
-_batchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
+_batchH = ['exptid', 'batchid', 'batchds', 'basecallN']
 _exptpairsH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
 _readpairsH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
 
@@ -21,11 +21,11 @@ def Get_Batchid(fast5path):
     For inferring batchids, can cope with fast5 files like:
     MinION2_20160802_FNFAD22824_MN16454_sequencing_run_Chip93_MARC_R9_1D_UBC_77825_ch100_read249_strand.fast5 -> 77825
     '''
-    batchid = ''
+    batchid = None
     file = os.path.basename(fast5path)
     filestem = '.'.join(file.split('.')[0:-1])
     L = filestem.split('_')
-    if L[-1] == 'strand' and L[-2].startswith('read') and L[-3].startswith('ch'):
+    if L[-1].startswith('strand') and L[-2].startswith('read') and L[-3].startswith('ch'):
         batchid = L[-4]
     return batchid
 
@@ -54,12 +54,13 @@ def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, con
                 fpD['readpairs'].write('{0}\n'.format('\t'.join(row)))
     fpD['exptpairs'].flush()
     fpD['readpairs'].flush()
-    return 0
+    return batchid
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptbasecallN, constD, fp):
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
     mylogger.info('Processing experiment {0}'.format(exptid))
     if args.pairs:
+        fp['batch'].write('{0}\n'.format('\t'.join(_batchH)))
         fp['exptpairs'].write('{0}\n'.format('\t'.join(_exptpairsH)))
         fp['readpairs'].write('{0}\n'.format('\t'.join(_readpairsH)))
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
@@ -69,18 +70,25 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     failL = [x for x in os.listdir(faildir) if x.endswith('.fast5')]
     maxfiles = min(args.samplesize, len(passL))
     fcnt = 0
+    batchD = {}
     for fast5 in passL:
         fcnt += 1
         if fcnt == maxfiles:
             break
-        Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(passdir, fast5), 'pass', fp, constD, exptbasecallN)
+        batchid = Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(passdir, fast5), 'pass', fp, constD, exptbasecallN)
+        if batchid is not None and not batchD.has_key(batchid):
+            batchD[batchid] = [exptid, batchid, '', args.basecallN]
+            fp['batch'].write('{0}\n'.format('\t'.join(batchD[batchid])))
     maxfiles = min(args.samplesize, len(failL))
     fcnt = 0
     for fast5 in failL:
         fcnt += 1
         if fcnt == maxfiles:
             break
-        Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(faildir, fast5), 'fail', fp, constD, exptbasecallN)
+        batchid = Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(faildir, fast5), 'fail', fp, constD, exptbasecallN)
+        if batchid is not None and not batchD.has_key(batchid):
+            batchD[batchid] = [exptid, batchid, '', args.basecallN]
+            fp['batch'].write('{0}\n'.format('\t'.join(batchD[batchid])))
 
 def Files_Open(outpathD):
     fp = {}
