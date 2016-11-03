@@ -14,7 +14,7 @@ _processname = 'extractone'
 _fast5samplesize = 3
 _batchH = ['exptid', 'batchid', 'batchds', 'NNN']
 _exptpairsH = ['exptid', 'batchid', 'NNN', 'var', 'val']
-_readpairsH = ['exptid', 'batchid', 'NNN', 'var', 'val']
+_readpairsH = ['exptid', 'batchid', 'readid', 'NNN', 'var', 'val']
 
 def Get_Batchid(fast5path):
     '''
