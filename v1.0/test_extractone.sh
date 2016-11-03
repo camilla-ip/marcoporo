@@ -24,7 +24,7 @@ python -m pdb \
 -basecallN 000 \
 -outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
 -pairs True \
--fastq False \
+-fastq True \
 -model False \
 -stats False \
 -samplesize 10

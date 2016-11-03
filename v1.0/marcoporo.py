@@ -153,7 +153,7 @@ def main():
         help='Experiment identifier')
     p03.add_argument('-indir', dest='indir', metavar='FILE', required=True, default=None,
         help='Experiment runfolder ')
-    p03.add_argument('-basecallN', dest='basecallN', metavar='FILE', required=False, default='000',
+    p03.add_argument('-NNN', dest='NNN', metavar='FILE', required=False, default='000',
         help='The NNN basecalling instance to extract data from')
     p03.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')

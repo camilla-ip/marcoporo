@@ -261,21 +261,21 @@ class marcoporolib(object):
 
     def fast5_fastq(self, hdf, basecallN, fast5path=None):
         'Return FASTQ strings from _NNN call instance as D[calltype] = [header, seq, plusline, bq], where calltype=[1T|1C|2D].'
-        fastq = { '1T': None, '1C': None, '2D': None }
+        fastqD = { '1T': None, '1C': None, '2D': None }
         for calltype in self.fast5fastqpath.keys():
             for genericpath in self.fast5fastqpath[calltype]:
                 correctpath = re.sub(r'NNN', basecallN, genericpath)
                 try:
-                    fqS = string(hdf[correctpath][()]).strip()
+                    fqS = str(hdf[correctpath][()]).strip()
+                    L = fqS.split('\n')
                     if fast5path is not None:
-                        L = record.split('\n')
-                        L[0] += ' {fast5path}'.format(fast5path)
-                        fqS = '\n'.join(L)
-                        fastq[calltype] = L
+                        L[0] += ' {fast5path}'.format(fast5path=fast5path)
+                        #fqS = '\n'.join(L)
+                    fastqD[calltype] = L
                     break
                 except:
                     pass
-        return fastq
+        return fastqD
 
     def fast5_extract(self, fast5path, basecallN, getattributes=True, ignoredatasets=True, getfastq=True, addfastqpath=True):
         'Extract attributes and/or fastq.'
@@ -287,7 +287,7 @@ class marcoporolib(object):
         if getattributes:
            attributeD, runnumberD, readnumberD = self.fast5_attributes(hdf, ignoredatasets)
         if getfastq:
-            fastqD = self.fast5_fastq(hdf, fast5path if addfastqpath else None)
+            fastqD = self.fast5_fastq(hdf, basecallN, fast5path if addfastqpath else None)
         hdf.close()
         return attributeD, runnumberD, readnumberD, fastqD
     

@@ -14,21 +14,21 @@ _mylogger = None
 _processname = 'extract'
 _fast5samplesize = 3
 _ontbatchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
-_ontexptpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
-_ontreadpairH = ['exptid', 'batchid', 'basecallN', 'var', 'val']
+_ontexptpairH = ['exptid', 'batchid', 'NNN', 'var', 'val']
+_ontreadpairH = ['exptid', 'batchid', 'readid', 'NNN', 'var', 'val']
 
 def Get_BasecallN(attr):
     '''
     Assumes attributes like Analyses/Basecall_1D_000/Configuration/general/sampling_rate
-    where basecallN is always the last token in the second part of the attribute path.
+    where NNN is always the last token in the second part of the attribute path.
     '''
-    basecallN = 'NA'
+    NNN = 'NA'
     keypartL = attr.split('/')
     if len(keypartL) >= 2: 
         lastpart = keypartL[1].split('_')[-1]
         if lastpart.isdigit():
-            basecallN = lastpart
-    return basecallN
+            NNN = lastpart
+    return NNN
 
 def Get_Batchid(fast5path):
   # For inferring batchids, can cope with fast5 files like:
@@ -41,35 +41,35 @@ def Get_Batchid(fast5path):
         batchid = L[-4]
     return batchid
 
-def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, constD, basecallN):
+def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, constD, NNN):
     'Open the FAST5 file, extract all requested information, write it to the file pointer.'
     mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1}\n'.format(exptid, readclass))
     attrD,runnumberD, readnumberD  = P.fast5_attributes(fast5path, 'all')
-    filteredattrD, filterok = P.fast5_attributes_filter(attrD, basecallN)
+    filteredattrD, filterok = P.fast5_attributes_filter(attrD, NNN)
     batchid = Get_Batchid(fast5path)
     if args.pairs:
         attrL = attrD.keys()
         attrL.sort()
         for attr in attrL:
-            #basecallN = Get_BasecallN(attr)
+            #NNN = Get_BasecallN(attr)
             var = attr
             val = attrD[var][1]
             newvar = P.fast5_attribute_to_NNN(attr)
             if constD.has_key(newvar):
-                row = [exptid, batchid, basecallN, newvar, val]
+                row = [exptid, batchid, NNN, newvar, val]
                 fpD['ontexptpair'].write('{0}\n'.format('\t'.join(row)))
             else:
                 try:
-                    readid = attrD['Analyses/EventDetection_{0}/Configuration/general/uuid'.format(basecallN)][1]
+                    readid = attrD['Analyses/EventDetection_{0}/Configuration/general/uuid'.format(NNN)][1]
                 except:
                     readid = 'NK'	# Need to change this to something based on the filename (chN and readN)
-                row = [exptid, batchid, readid, basecallN, newvar, val]
+                row = [exptid, batchid, readid, NNN, newvar, val]
                 fpD['ontreadpair'].write('{0}\n'.format('\t'.join(row)))
     fpD['ontexptpair'].flush()
     fpD['ontreadpair'].flush()
     return 0
 
-def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptbasecallN, constD, fp):
+def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptNNN, constD, fp):
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
 
     mylogger.info('Processing experiment {0}'.format(exptid))
@@ -91,14 +91,14 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
         fcnt += 1
         if fcnt == maxfiles:
             break
-        Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(passdir, fast5), 'pass', fp, constD, exptbasecallN)
+        Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(passdir, fast5), 'pass', fp, constD, exptNNN)
     maxfiles = min(args.samplesize, len(failL))
     fcnt = 0
     for fast5 in failL:
         fcnt += 1
         if fcnt == maxfiles:
             break
-        Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(faildir, fast5), 'fail', fp, constD, exptbasecallN)
+        Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(faildir, fast5), 'fail', fp, constD, exptNNN)
         
     #mylogger.info('Experiment {0} : Processing finished'.format(exptid))
 
@@ -173,7 +173,7 @@ def Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD,
     'Iterate through each FAST5 file and store the info specified in the command-line flags.'
     mylogger.info('Start iterating across all FAST5 files.')
     for exptid in exptidL:
-        Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, E[exptid]['dirpath'], E[exptid]['basecallN'], constD, fp)
+        Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, E[exptid]['dirpath'], E[exptid]['NNN'], constD, fp)
     mylogger.info('Finished iterating across all FAST5 files.')
     return 0
 

@@ -1,4 +1,4 @@
-exptid	phase	lab	replicate	libtype	dirpath	basecallN
+exptid	phase	lab	replicate	libtype	dirpath	NNN
 P1b-Lab2-R2-2D	P1b	Lab2	R2	2D	/PATH/TO/ANALYSIS/MYDIR/data/01-fast5/P1b-Lab2-R2-2D	000
 P2-Lab6-R1-1D	P2	Lab6	R1	1D	/PATH/TO/ANALYSIS/MYDIR/data/01-fast5/P2-Lab6-R1-1D	000
 P2-Lab6-R1-2D	P2	Lab6	R1	2D	/PATH/TO/ANALYSIS/MYDIR/data/01-fast5/P2-Lab6-R1-2D	000
