@@ -137,7 +137,7 @@ class marcoporolib(object):
         particular ONT FAST5 file versions.
         The return values are:
         attributeD[attribute] = [TYPE, VALUE] and includes internal attribute 'paths'
-        runnumberD[SECTION_NNNN] = [SECTION_NNNN, NNNN]
+        runnumberD[SECTION_NNN] = [SECTION_NNN, NNN]
         readnumberD['Read_NNNN'] = ['Read_NNNN', 'NNNN']
         '''
       # Initialise
@@ -305,7 +305,7 @@ class marcoporolib(object):
         hdf.close()
         return attributeD, runnumberD, readnumberD, fastqD
     
-    def fast5_attribute_to_NNN(self, word):
+    def fast5_attribute_to_instanceN(self, word):
         'Replace SOMETHING/SOMETHING_\d*/SOMETHING with SOMETHING/SOMETHING_NNN/SOMETHING.'
       # Changed this because it only replaces the last instance of _\d\d\d
         #new = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', word)
@@ -338,7 +338,7 @@ class marcoporolib(object):
           # Regex implementation
             if re.match(r'.*/.*_(\d*)/.*', key):
                 #newkey = re.sub(r'(.*)/(.*)_(\d*)/(.*)', r'\1/\2_NNN/\4', key)
-                newkey = self.fast5_attribute_to_NNN(key)
+                newkey = self.fast5_attribute_to_instanceN(key)
                 filteredD[newkey] = attributeD[key]
             else:
                 filteredD[key] = attributeD[key]

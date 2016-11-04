@@ -6,7 +6,7 @@ python -m pdb \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
--NNN 000 \
+-instanceN 000 \
 -outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
 -pairs True \
 -fastq False \
@@ -21,7 +21,7 @@ python -m pdb \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
--NNN 000 \
+-instanceN 000 \
 -outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
 -pairs True \
 -fastq True \

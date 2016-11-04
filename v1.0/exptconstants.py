@@ -13,8 +13,8 @@ _mylogger = None
 _processname = 'exptconstants'
 _fast5samplesize = 3
 _ontbatchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
-_ontexptpairH = ['exptid', 'batchid', 'NNN', 'var', 'val']
-_ontreadpairH = ['exptid', 'batchid', 'NNN', 'var', 'val']
+_ontexptpairH = ['exptid', 'batchid', 'instanceN', 'var', 'val']
+_ontreadpairH = ['exptid', 'batchid', 'instanceN', 'var', 'val']
 
 def Merge_DictPairs(D):
     'Given D[name]={var:val, ...} return elt[var]=val with same pairs in all name keys.'
@@ -66,11 +66,11 @@ def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
       # Extract all metadata
         M = {}
         for fast5 in fast5L:
-             attributeD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5, E[exptid]['NNN'], True, True, False, True, 'concise')
+             attributeD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5, E[exptid]['instanceN'], True, True, False, True, 'concise')
              #attrDbestN = Filter_Attributes(attributeD)
-             attrDbestN, filterok = P.fast5_attributes_filter(attributeD, E[exptid]['NNN'])
+             attrDbestN, filterok = P.fast5_attributes_filter(attributeD, E[exptid]['instanceN'])
              if not filterok:
-                 mylogger.error('Failed to filter NNN in attributes, skipping file ({0})'.format(fast5))
+                 mylogger.error('Failed to filter instanceN in attributes, skipping file ({0})'.format(fast5))
                  continue
              M[fast5] = attrDbestN
       # Keep the fields that are constant in this experiment C[exptid] = {var:val, ...}
