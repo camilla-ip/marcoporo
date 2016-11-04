@@ -27,5 +27,6 @@ python -m pdb \
 -fastq True \
 -model False \
 -stats False \
--samplesize 10
+-samplesize 10 \
+-fastqheaderformat poretools
 

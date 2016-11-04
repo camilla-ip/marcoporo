@@ -167,6 +167,8 @@ def main():
         help='Single-row summary stats for each experiment and read')
     p03.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10000000,
         help='Number of FAST5 files to inspect from each expt, useful for testing.')
+    p03.add_argument('-fastqheaderformat', dest='fastqheaderformat', metavar='FILE', required=False, default='concise',
+        help='Output FASTQ header format [fast5|concise|poretools] ')
     p03.set_defaults(func=run_subtool)
 
   # Parse the arguments

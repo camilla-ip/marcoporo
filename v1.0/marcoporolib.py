@@ -259,8 +259,14 @@ class marcoporolib(object):
         #hdf.close()
         return attributeD, runnumberD, readnumberD
 
-    def fast5_fastq(self, hdf, basecallN, fast5path=None):
-        'Return FASTQ strings from _NNN call instance as D[calltype] = [header, seq, plusline, bq], where calltype=[1T|1C|2D].'
+    def fast5_fastq(self, hdf, basecallN, fast5path=None, fastqheaderformat='fast5'):
+        '''
+        Return FASTQ strings from _NNN call instance as D[calltype] = [header, seq, plusline, bq], where calltype=[1T|1C|2D].
+        fastqheaderformat must be:
+        fast5 = Just return whatever format is in the fast5 header
+        concise = @readidfromfast5 path/to/filename.fast5
+        poretools = @readidfromfast5_filestemfromfast5:32digithexnumber path/to/filename.fast5
+        '''
         fastqD = { '1T': None, '1C': None, '2D': None }
         for calltype in self.fast5fastqpath.keys():
             for genericpath in self.fast5fastqpath[calltype]:
@@ -269,15 +275,23 @@ class marcoporolib(object):
                     fqS = str(hdf[correctpath][()]).strip()
                     L = fqS.split('\n')
                     if fast5path is not None:
-                        L[0] += ' {fast5path}'.format(fast5path=fast5path)
-                        #fqS = '\n'.join(L)
+                        if fastqheaderformat == 'concise':
+                            R = L[0].split(' ')
+                            L[0] = '{readid} {fast5path}'.format(readid=R[0], fast5path=fast5path)
+                        elif fastqheaderformat == 'poretools':
+                            R = L[0].split(' ')
+                            unknownid = '0'*32
+                            L[0] = '{readid}_{restofline}:{unknownid} {filepath}'.format(
+                                readid=R[0], restofline=' '.join(R[1:]), unknownid=unknownid, filepath=fast5path)
+                        else:
+                            pass
                     fastqD[calltype] = L
                     break
                 except:
                     pass
         return fastqD
 
-    def fast5_extract(self, fast5path, basecallN, getattributes=True, ignoredatasets=True, getfastq=True, addfastqpath=True):
+    def fast5_extract(self, fast5path, basecallN, getattributes=True, ignoredatasets=True, getfastq=True, addfastqpath=True, fastqheaderformat='fast5'):
         'Extract attributes and/or fastq.'
         attributeD = {}
         runnumberD = {}
@@ -287,7 +301,7 @@ class marcoporolib(object):
         if getattributes:
            attributeD, runnumberD, readnumberD = self.fast5_attributes(hdf, ignoredatasets)
         if getfastq:
-            fastqD = self.fast5_fastq(hdf, basecallN, fast5path if addfastqpath else None)
+            fastqD = self.fast5_fastq(hdf, basecallN, fast5path if addfastqpath else None, fastqheaderformat)
         hdf.close()
         return attributeD, runnumberD, readnumberD, fastqD
     
