@@ -78,10 +78,204 @@ def Extract_Fastq(mylogger, readclass, fastqD, fpD):
     else:
         mylogger.error('Unrecognised readclass {0} ({1})'.format(readclass, fast5path))
 
-def Extract_Stats():
-    pass
+def Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD):
+    'Only one row per experiment required.'
+    runid = 'X'
+    samplingrate = -1
+    asicid = 'X'
+    deviceid = 'X'
+    flowcellid = 'X'
+    scriptname = 'X'
+    scriptpurpose = ''
+    starttime = -1
+    starttimeiso = 'X'
+    versionname = 'X'
+    version = 'X'
+    workflowfullname = 'X'
+    workflowshortname = 'X'
+    workflowversion = 'X'
+    numericalencoding = 'X'
+    precision = 'X'
+    tool = 'X'
+    comment = ''
+    dbuserid = ''
+    rowNP = np.array(
+        (exptid, batchid, runid, samplingrate, asicid,
+        deviceid, flowcellid, scriptname, scriptpurpose, starttime,
+        starttimeiso, versionname, version, workflowfullname, workflowshortname,
+        workflowversion, numericalencoding, precision, tool, comment,
+        dbuserid),
+        dtype=P.ontexptstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    fpD['exptstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
 
-def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):
+def Print_ontreadstats(P, exptid, batchid, instanceN, attrD, fpD):
+    'One row per read required.'
+    runid = ''
+    readid = 'X'
+    channelnumber = -1
+    readnumber = -1
+    filenumber = -1
+    readclass ='X'
+    asictemp = -1
+    heatsinktemp = -1
+    readstarttime = -1
+    readduration =-1
+    readstarttimesec = -1
+    readendtimesec = -1
+    readstarttimeiso = 'X'
+    readendtimeiso = 'X'
+    comment = ''
+    dbuserid = ''
+    rowNP = np.array(
+        (exptid, batchid, runid, readid, channelnumber,
+         readnumber, filenumber, readclass, asictemp, heatsinktemp,
+         readstarttime, readduration, readstarttimesec, readendtimesec, readstarttimeiso,
+         readendtimeiso, comment, dbuserid),
+        dtype=P.ontreadstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    fpD['readstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+
+def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
+    runid = 'X'
+    readid = 'X'
+    eventinstanceN = 'X'
+    eventstarttime = -1
+    eventduration = -1
+    eventcount = -1
+    eventspersec = -1
+    eventstarttimeiso = 'X'
+    eventendtimeiso = 'X'
+    comment = ''
+    dbuserid = ''
+    rowNP = np.array(
+        (exptid, batchid, runid, readid, eventinstanceN,
+        eventstarttime, eventduration, eventcount, eventspersec, eventstarttimeiso,
+        eventendtimeiso, comment, dbuserid),
+        dtype=P.ontreadeventstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    fpD['readeventstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+
+def Print_ontread1tstats(P, exptid, batchid, instanceN, attrD, fpD):
+    runid = 'X'
+    readid = 'X'
+    bc1dinstanceN = 'X'
+    readtype = 'X'
+    hpinalignnum = -1
+    hpinalignend = -1
+    hpinalignstart = -1
+    hpinalignduration = -1
+    hpinsplitduration = -1
+    hpinsplitnum = -1
+    numraw = -1
+    nummerged = -1
+    numevents = -1
+    numskip = -1
+    numstays = -1
+    numcalled = -1
+    strandstarttime = -1
+    strandduration = -1
+    strandstarttimeiso = 'X'
+    strandendtimeiso = 'X'
+    meanqscore = -1
+    strandscore = -1
+    seqlen = -1
+    bqlen = -1
+    bqmean = -1
+    bqmedian = -1
+    gcmean = -1
+    comment = ''
+    dbuserid = ''
+    rowNP = np.array(
+        (exptid, batchid, runid, readid, bc1dinstanceN,
+        readtype, hpinalignnum, hpinalignend, hpinalignstart, hpinalignduration,
+        hpinsplitduration, hpinsplitnum, numraw, nummerged, numevents,
+        numskip, numstays, numcalled, strandstarttime, strandduration,
+        strandstarttimeiso, strandendtimeiso, meanqscore, strandscore, seqlen,
+        bqlen, bqmean, bqmedian, gcmean, comment,
+        dbuserid),
+        dtype=P.ontread1dstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+
+def Print_ontread1cstats(P, exptid, batchid, instanceN, attrD, fpD):
+    runid = 'X'
+    readid = 'X'
+    bc1dinstanceN = 'X'
+    readtype = 'X'
+    hpinalignnum = -1
+    hpinalignend = -1
+    hpinalignstart = -1
+    hpinalignduration = -1
+    hpinsplitduration = -1
+    hpinsplitnum = -1
+    numraw = -1
+    nummerged = -1
+    numevents = -1
+    numskip = -1
+    numstays = -1
+    numcalled = -1
+    strandstarttime = -1
+    strandduration = -1
+    strandstarttimeiso = 'X'
+    strandendtimeiso = 'X'
+    meanqscore = -1
+    strandscore = -1
+    seqlen = -1
+    bqlen = -1
+    bqmean = -1
+    bqmedian = -1
+    gcmean = -1
+    comment = ''
+    dbuserid = ''
+    rowNP = np.array(
+        (exptid, batchid, runid, readid, bc1dinstanceN,
+        readtype, hpinalignnum, hpinalignend, hpinalignstart, hpinalignduration,
+        hpinsplitduration, hpinsplitnum, numraw, nummerged, numevents,
+        numskip, numstays, numcalled, strandstarttime, strandduration,
+        strandstarttimeiso, strandendtimeiso, meanqscore, strandscore, seqlen,
+        bqlen, bqmean, bqmedian, gcmean, comment,
+        dbuserid),
+        dtype=P.ontread1dstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+
+def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fpD):
+    Print_ontread1tstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontread1cstats(P, exptid, batchid, instanceN, attrD, fpD)
+
+def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD):
+    runid = 'X'
+    readid = 'X'
+    bc2instanceN = 'X'
+    meanqscore = -1
+    strandscore = -1
+    seqlen = -1
+    bqlen = -1
+    bqmean = -1
+    bqmedian = -1
+    gcmean = -1
+    comment = ''
+    dbuserid = ''
+    rowNP = np.array(
+        (exptid, batchid, runid, readid, bc2instanceN,
+        meanqscore, strandscore, seqlen, bqlen, bqmean,
+        bqmedian, gcmean, comment, dbuserid),
+        dtype=P.ontread2dstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    fpD['read2dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+
+def Extract_Stats(filecnt, P, exptid, batchid, instanceN, attrD, fpD):
+    'Print records from current fast5 file to ont[expt|read]stats, ontread[event|1d|2d]stats files.'
+    if filecnt == 1:
+        Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontreadstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD)
+    return 0
+
+def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):
     'Open the FAST5 file, extract all requested information, write it to the file pointer.'
     mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1}\n'.format(exptid, readclass))
     attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, instanceN, args.pairs, True, args.fastq, True, args.fastqheaderformat)
@@ -92,7 +286,7 @@ def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, con
     if args.fastq:
         Extract_Fastq(mylogger, readclass, fastqD, fpD)
     if args.stats:
-        Extract_Stats()
+        Extract_Stats(filecnt, P, exptid, batchid, instanceN, attrD, fpD)
     return batchid
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptinstanceN, constD, fp):
@@ -120,13 +314,13 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     batchD = {}
     for fast5dir, fast5, readclass in fast5L:
         fcnt += 1
-        if fcnt == maxfiles:
-            break
-        batchid = Extract_Fast5_Data(args, P, mylogger, exptid, os.path.join(fast5dir, fast5), readclass, fp, constD, exptinstanceN)
+        batchid = Extract_Fast5_Data(fcnt, args, P, mylogger, exptid, os.path.join(fast5dir, fast5), readclass, fp, constD, exptinstanceN)
         if batchid is not None and not batchD.has_key(batchid):
             batchD[batchid] = [exptid, batchid, '', args.instanceN]
             fp['batch'].write('{0}\n'.format('\t'.join(batchD[batchid])))
             fp['batch'].flush()
+        if fcnt == maxfiles:
+            break
     return 0
 
 def Files_Open(outdir, dofastq, dopairs, dostats, exptid, mylogger):
