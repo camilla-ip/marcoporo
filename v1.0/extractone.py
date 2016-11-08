@@ -15,6 +15,7 @@ import numpy as np
 import os
 import random
 import sys
+import time
 
 import marcoporoversion
 
@@ -80,23 +81,23 @@ def Extract_Fastq(mylogger, readclass, fastqD, fpD):
 
 def Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD):
     'Only one row per experiment required.'
-    runid = 'X'
-    samplingrate = -1
-    asicid = 'X'
-    deviceid = 'X'
-    flowcellid = 'X'
-    scriptname = 'X'
-    scriptpurpose = ''
-    starttime = -1
-    starttimeiso = 'X'
-    versionname = 'X'
-    version = 'X'
-    workflowfullname = 'X'
-    workflowshortname = 'X'
-    workflowversion = 'X'
-    numericalencoding = 'X'
-    precision = 'X'
-    tool = 'X'
+    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+    asicid = attrD['UniqueGlobalKey/tracking_id/asic_id'][1]
+    deviceid = attrD['UniqueGlobalKey/tracking_id/device_id'][1]
+    flowcellid = attrD['UniqueGlobalKey/tracking_id/flow_cell_id'][1]
+    scriptname = attrD['UniqueGlobalKey/tracking_id/exp_script_name'][1]
+    scriptpurpose = attrD['UniqueGlobalKey/tracking_id/exp_script_purpose'][1]
+    starttime = int(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+    starttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(starttime))
+    versionname = attrD['UniqueGlobalKey/tracking_id/version_name'][1]
+    version = attrD['UniqueGlobalKey/tracking_id/version'][1]
+    workflowfullname = attrD['Analyses/EventDetection_{0}/Configuration/general/workflow_name'.format(instanceN)][1]
+    workflowshortname = 'X' # XXXX
+    workflowversion = 'X' # XXXX
+    numericalencoding = 'X' # XXXX
+    precision = 'X' # XXXX
+    tool = 'X' # XXXX
     comment = ''
     dbuserid = ''
     rowNP = np.array(
@@ -109,22 +110,26 @@ def Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD):
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['exptstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
 
-def Print_ontreadstats(P, exptid, batchid, instanceN, attrD, fpD):
-    'One row per read required.'
-    runid = ''
-    readid = 'X'
-    channelnumber = -1
-    readnumber = -1
-    filenumber = -1
-    readclass ='X'
-    asictemp = -1
-    heatsinktemp = -1
-    readstarttime = -1
-    readduration =-1
-    readstarttimesec = -1
-    readendtimesec = -1
-    readstarttimeiso = 'X'
-    readendtimeiso = 'X'
+def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD):
+  # Intermediate
+    readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+  # Returned
+    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
+    channelnumber = int(attrD['UniqueGlobalKey/channel_id/channel_number'][1])
+    readnumber = int(readnumberS)
+    filenumber = int(attrD['Analyses/EventDetection_{0}/Configuration/general/file_number'.format(instanceN)][1])
+    #readclass ='X'
+    asictemp = float(attrD['UniqueGlobalKey/tracking_id/asic_temp'][1])
+    heatsinktemp = float(attrD['UniqueGlobalKey/tracking_id/heatsink_temp'][1])
+    readstarttime = float(attrD['Raw/Reads/Read_{0}/start_time'.format(readnumberS)][1])
+    readduration = float(attrD['Raw/Reads/Read_{0}/duration'.format(readnumberS)][1])
+    readstarttimesec = exp_start_time + readstarttime / samplingrate
+    readendtimesec = exp_start_time + readstarttime / samplingrate + readduration / samplingrate
+    readstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(readstarttimesec))
+    readendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(readendtimesec))
     comment = ''
     dbuserid = ''
     rowNP = np.array(
@@ -137,28 +142,40 @@ def Print_ontreadstats(P, exptid, batchid, instanceN, attrD, fpD):
     fpD['readstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
 
 def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
-    runid = 'X'
-    readid = 'X'
-    eventinstanceN = 'X'
-    eventstarttime = -1
-    eventduration = -1
-    eventcount = -1
-    eventspersec = -1
-    eventstarttimeiso = 'X'
-    eventendtimeiso = 'X'
+  # Intermediate
+    readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+  # Returned
+    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
+    eventinstanceN = instanceN
+    eventstarttime = float(attrD['Analyses/EventDetection_{0}/Reads/Read_{1}/start_time'.format(eventinstanceN, readnumberS)][1])
+    eventduration = float(attrD['Analyses/EventDetection_{0}/Reads/Read_{1}/duration'.format(eventinstanceN, readnumberS)][1])
+    eventstarttimesec = exp_start_time + eventstarttime / samplingrate
+    eventendtimesec = exp_start_time + eventstarttime / samplingrate + eventduration / samplingrate
+    eventdurationsec = eventduration / samplingrate
+    eventstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(eventstarttimesec))
+    eventendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(eventendtimesec))
+    eventcount = int(attrD['Analyses/EventDetection_{0}/Summary/event_detection/num_events'.format(eventinstanceN)][1])
+    eventspersec = (eventcount / eventdurationsec) if (eventdurationsec and eventcount > 100) else 0.0
     comment = ''
     dbuserid = ''
     rowNP = np.array(
         (exptid, batchid, runid, readid, eventinstanceN,
-        eventstarttime, eventduration, eventcount, eventspersec, eventstarttimeiso,
-        eventendtimeiso, comment, dbuserid),
+        eventstarttime, eventduration, eventstarttimesec, eventendtimesec, eventdurationsec,
+        eventstarttimeiso, eventendtimeiso, eventcount, eventspersec, comment,
+        dbuserid),
         dtype=P.ontreadeventstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['readeventstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
 
 def Print_ontread1tstats(P, exptid, batchid, instanceN, attrD, fpD):
-    runid = 'X'
-    readid = 'X'
+  # Intermediate
+    readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+  # Returned
+    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
     bc1dinstanceN = 'X'
     readtype = 'X'
     hpinalignnum = -1
@@ -199,8 +216,11 @@ def Print_ontread1tstats(P, exptid, batchid, instanceN, attrD, fpD):
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
 
 def Print_ontread1cstats(P, exptid, batchid, instanceN, attrD, fpD):
-    runid = 'X'
-    readid = 'X'
+  # Intermediate
+    readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+  # Returned
+    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
     bc1dinstanceN = 'X'
     readtype = 'X'
     hpinalignnum = -1
@@ -245,8 +265,11 @@ def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fpD):
     Print_ontread1cstats(P, exptid, batchid, instanceN, attrD, fpD)
 
 def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD):
-    runid = 'X'
-    readid = 'X'
+  # Intermediate
+    readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+  # Returned
+    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
     bc2instanceN = 'X'
     meanqscore = -1
     strandscore = -1
@@ -265,11 +288,11 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD):
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['read2dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
 
-def Extract_Stats(filecnt, P, exptid, batchid, instanceN, attrD, fpD):
+def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fpD):
     'Print records from current fast5 file to ont[expt|read]stats, ontread[event|1d|2d]stats files.'
     if filecnt == 1:
         Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD)
-    Print_ontreadstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD)
     Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD)
     Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fpD)
     Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD)
@@ -286,7 +309,7 @@ def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass,
     if args.fastq:
         Extract_Fastq(mylogger, readclass, fastqD, fpD)
     if args.stats:
-        Extract_Stats(filecnt, P, exptid, batchid, instanceN, attrD, fpD)
+        Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fpD)
     return batchid
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptinstanceN, constD, fp):

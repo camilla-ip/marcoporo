@@ -157,10 +157,13 @@ class marcoporolib(object):
             ('eventinstanceN', 'S4'),
             ('eventstarttime', np.float),
             ('eventduration', np.float),
-            ('eventcount', np.int),
-            ('eventspersec', np.float),
+            ('eventstarttimesec', np.float),
+            ('eventendtimesec', np.float),
+            ('eventdurationsec', np.float),
             ('eventstarttimeiso', 'S30'),
             ('eventendtimeiso', 'S30'),
+            ('eventcount', np.int),
+            ('eventspersec', np.float),
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
