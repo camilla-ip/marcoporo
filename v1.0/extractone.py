@@ -20,9 +20,9 @@ import marcoporoversion
 
 _processname = 'extractone'
 _fast5samplesize = 3
-_batchH = ['exptid', 'batchid', 'batchds', 'instanceN']
-_exptpairsH = ['exptid', 'batchid', 'instanceN', 'var', 'val']
-_readpairsH = ['exptid', 'batchid', 'readid', 'instanceN', 'var', 'val']
+#_batchH = ['exptid', 'batchid', 'batchds', 'instanceN']
+#_exptpairsH = ['exptid', 'batchid', 'instanceN', 'var', 'val']
+#_readpairsH = ['exptid', 'batchid', 'readid', 'instanceN', 'var', 'val']
 
 def Get_Batchid(fast5path):
     '''
@@ -91,9 +91,15 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
     mylogger.info('Processing experiment {0}'.format(exptid))
     if args.pairs:
-        fp['batch'].write('{0}\n'.format('\t'.join(_batchH)))
-        fp['exptpairs'].write('{0}\n'.format('\t'.join(_exptpairsH)))
-        fp['readpairs'].write('{0}\n'.format('\t'.join(_readpairsH)))
+        fp['batch'].write('{0}\n'.format('\t'.join(P.ontbatchH)))
+        fp['exptpairs'].write('{0}\n'.format('\t'.join(P.ontexptpairsH)))
+        fp['readpairs'].write('{0}\n'.format('\t'.join(P.ontreadpairsH)))
+    if args.stats:
+        fp['exptstats'].write('{0}\n'.format('\t'.join(P.ontexptstatsH)))
+        fp['readstats'].write('{0}\n'.format('\t'.join(P.ontreadstatsH)))
+        fp['readeventstats'].write('{0}\n'.format('\t'.join(P.ontreadeventstatsH)))
+        fp['read1dstats'].write('{0}\n'.format('\t'.join(P.ontread1dstatsH)))
+        fp['read2dstats'].write('{0}\n'.format('\t'.join(P.ontread2dstatsH)))
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
@@ -132,7 +138,12 @@ def Files_Open(outdir, exptid):
         'fq1Cpass' : os.path.join(outdir, '{exptid}_1C_pass.fastq'.format(exptid=exptid)),
         'fq1Cfail' : os.path.join(outdir, '{exptid}_1C_fail.fastq'.format(exptid=exptid)),
         'fq2Dpass' : os.path.join(outdir, '{exptid}_2D_pass.fastq'.format(exptid=exptid)),
-        'fq2Dfail' : os.path.join(outdir, '{exptid}_2D_fail.fastq'.format(exptid=exptid))
+        'fq2Dfail' : os.path.join(outdir, '{exptid}_2D_fail.fastq'.format(exptid=exptid)),
+        'exptstats' : os.path.join(outdir, '{exptid}_exptstats.txt'.format(exptid=exptid)),
+        'readstats' : os.path.join(outdir, '{exptid}_readstats.txt'.format(exptid=exptid)),
+        'readeventsstats' : os.path.join(outdir, '{exptid}_readeventstats.txt'.format(exptid=exptid)),
+        'read1dstats' : os.path.join(outdir, '{exptid}_read1dstats.txt'.format(exptid=exptid)),
+        'read2dstats' : os.path.join(outdir, '{exptid}_read2dstats.txt'.format(exptid=exptid))
     }
     fp = {}
     keyL = outpathD.keys()
@@ -160,42 +171,6 @@ def Files_Close(fp):
         except:
             pass
     return 0
-
-def PairFiles_Open(outdir, exptid):
-    outpathD = {
-        'batch': os.path.join(outdir, '{exptid}_batch.txt'.format(exptid=exptid)),
-        'exptpairs' : os.path.join(outdir, '{exptid}_exptpairs.txt'.format(exptid=exptid)),
-        'readpairs' : os.path.join(outdir, '{exptid}_readpairs.txt'.format(exptid=exptid))
-    }
-    fp = Files_Open(outpathD)
-    return fp
-
-def FastqFiles_Open(outdir, exptid, passdir, faildir):
-    outpathD = {
-        'fq1Tpass' : os.path.join(outdir, '{exptid}_1T_pass.fastq'.format(exptid=exptid)),
-        'fq1Tfail' : os.path.join(outdir, '{exptid}_1T_fail.fastq'.format(exptid=exptid)),
-        'fq1Cpass' : os.path.join(outdir, '{exptid}_1C_pass.fastq'.format(exptid=exptid)),
-        'fq1Cfail' : os.path.join(outdir, '{exptid}_1C_fail.fastq'.format(exptid=exptid)),
-        'fq2Dpass' : os.path.join(outdir, '{exptid}_2D_pass.fastq'.format(exptid=exptid)),
-        'fq2Dfail' : os.path.join(outdir, '{exptid}_2D_fail.fastq'.format(exptid=exptid))
-    }
-    fp = Files_Open(outpathD)
-    return fp
-
-def ModelFiles_Open(outdir):
-    outpathD = {
-        'model' : os.path.join(args.outdir, '{exptid}_model.txt'.format(exptid=exptid))
-    }
-    fp = Files_Open(outpathD)
-    return fp
-
-def StatsFiles_Open(outdir, exptid):
-    outpathD = {
-        'exptstats' : os.path.join(args.outdir, '{exptid}_exptstat.txt'.format(exptid=exptid)),
-        'readstats' : os.path.join(args.outdir, '{exptid}_readstat.txt'.format(exptid=exptid))
-    }
-    fp = Files_Open(outpathD)
-    return fp
 
 def Prerequisites(args, P, mylogger, myhandler, processname):
     'Exit program if some prerequisites are not met.'

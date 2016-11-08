@@ -78,6 +78,65 @@ class marcoporolib(object):
             '2D' : [	'Analyses/Basecall_2D_NNN/BaseCalled_2D/Fastq' ]
         }
 
+        self.ontbatchH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('batchds', 'S200'),
+            ('instanceN', 'S20'),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
+        self.ontexptpairsH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('instanceN', 'S20'),
+            'instanceN', 'S20'),
+            ('var', 'S200'),
+            ('val', 'S300'),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
+        self.ontreadpairsH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('readid', 'S200'),
+            ('instanceN', 'S20'),
+            ('var', 'S200'),
+            ('val', 'S300'),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
+        self.ontexptstatsH = [
+            'exptid', 'batchid', 'runid', 'samplingrate', 'asicid',
+            'deviceid', 'flowcellid', 'scriptname', 'scriptpurpose', 'starttime',
+            'starttimeiso', 'versionname', 'version', 'workflowfullname', 'workflowshortname',
+            'workflowversion', 'numericalencoding', 'precision', 'tool'
+        ]
+        self.ontreadstatsH = [
+            'exptid', 'batchid', 'runid', 'readid', 'channelnumber',
+            'readnumber', 'filenumber', 'readclass', 'asictemp', 'heatsinktemp',
+            'readstarttime', 'readduration', 'readstarttimesec', 'readendtimesec', 'readstarttimeiso',
+            'readendtimeiso'
+        ]
+        self.ontreadeventstatsH = [
+            'exptid', 'batchid', 'runid', 'readid', 'eventinstanceN',
+            'eventstarttime', 'eventduration', 'eventcount', 'eventspersec', 'eventstarttimeiso',
+            'eventendtimeiso'
+        ]
+        self.ontread1dstatsH = [
+            'exptid', 'batchid', 'runid', 'readid', 'bc1dinstanceN',
+            'readtype', 'hpinalignnum', 'hpinalignend', 'hpinalignstart', 'hpinalignduration',
+            'hpinsplitduration', 'hpinsplitnum', 'numraw', 'nummerged', 'numevents',
+            'numskip', 'numstays', 'numcalled', 'strandstarttime', 'strandduration',
+            'strandstarttimeiso', 'strandendtimeiso', 'meanqscore', 'strandscore', 'seqlen',
+            'bqlen', 'bqmean', 'bqmedian', 'gcmean'
+        ]
+        self.ontread2dstatsH = [
+            'exptid', 'batchid', 'runid', 'readid', 'bc2instanceN',
+            'meanqscore', 'strandscore', 'seqlen', 'bqlen', 'bqmean',
+            'bqmedian', 'gcmean'
+        ]
+
     # err
 
     def err_dump(self):
