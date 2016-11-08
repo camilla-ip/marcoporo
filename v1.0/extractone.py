@@ -34,6 +34,53 @@ def Get_Batchid(fast5path):
         batchid = L[-4]
     return batchid
 
+def Extract_Pairs(P, constD, exptid, batchid, instanceN, attrD, fpD):
+    attrL = attrD.keys()
+    attrL.sort()
+    for attr in attrL:
+        var = attr
+        val = attrD[var][1]
+        newvar = P.fast5_attribute_to_instanceN(attr)
+        if constD.has_key(newvar):
+            row = [exptid, batchid, instanceN, newvar, val]
+            fpD['exptpairs'].write('{0}\n'.format('\t'.join(row)))
+        else:
+            try:
+                readid = attrD['Analyses/EventDetection_{0}/Configuration/general/uuid'.format(instanceN)][1]
+            except:
+                readid = 'NK'       # Need to change this to something based on the filename (chN and readN)
+            row = [exptid, batchid, readid, instanceN, newvar, val]
+            fpD['readpairs'].write('{0}\n'.format('\t'.join(row)))
+    fpD['exptpairs'].flush()
+    fpD['readpairs'].flush()
+
+def Extract_Fastq(mylogger, readclass, fastqD, fpD):
+    if readclass == 'pass':
+        if fastqD['1T'] is not None:
+            fpD['fq1Tpass'].write('{0}\n'.format('\n'.join(fastqD['1T'])))
+            fpD['fq1Tpass'].flush()
+        if fastqD['1C'] is not None:
+            fpD['fq1Cpass'].write('{0}\n'.format('\n'.join(fastqD['1C'])))
+            fpD['fq1Cpass'].flush()
+        if fastqD['2D'] is not None:
+            fpD['fq2Dpass'].write('{0}\n'.format('\n'.join(fastqD['2D'])))
+            fpD['fq2Dpass'].flush()
+    elif readclass == 'fail':
+        if fastqD['1T'] is not None:
+            fpD['fq1Tfail'].write('{0}\n'.format('\n'.join(fastqD['1T'])))
+            fpD['fq1Tfail'].flush()
+        if fastqD['1C'] is not None:
+            fpD['fq1Cfail'].write('{0}\n'.format('\n'.join(fastqD['1C'])))
+            fpD['fq1Cfail'].flush()
+        if fastqD['2D'] is not None:
+            fpD['fq2Dfail'].write('{0}\n'.format('\n'.join(fastqD['2D'])))
+            fpD['fq2Dfail'].flush()
+    else:
+        mylogger.error('Unrecognised readclass {0} ({1})'.format(readclass, fast5path))
+
+def Extract_Stats():
+    pass
+
 def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):
     'Open the FAST5 file, extract all requested information, write it to the file pointer.'
     mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1}\n'.format(exptid, readclass))
@@ -41,47 +88,11 @@ def Extract_Fast5_Data(args, P, mylogger, exptid, fast5path, readclass, fpD, con
     filteredattrD, filterok = P.fast5_attributes_filter(attrD, instanceN)
     batchid = Get_Batchid(fast5path)
     if args.pairs:
-        attrL = attrD.keys()
-        attrL.sort()
-        for attr in attrL:
-            var = attr
-            val = attrD[var][1]
-            newvar = P.fast5_attribute_to_instanceN(attr)
-            if constD.has_key(newvar):
-                row = [exptid, batchid, instanceN, newvar, val]
-                fpD['exptpairs'].write('{0}\n'.format('\t'.join(row)))
-            else:
-                try:
-                    readid = attrD['Analyses/EventDetection_{0}/Configuration/general/uuid'.format(instanceN)][1]
-                except:
-                    readid = 'NK'	# Need to change this to something based on the filename (chN and readN)
-                row = [exptid, batchid, readid, instanceN, newvar, val]
-                fpD['readpairs'].write('{0}\n'.format('\t'.join(row)))
-        fpD['exptpairs'].flush()
-        fpD['readpairs'].flush()
+        Extract_Pairs(P, constD, exptid, batchid, instanceN, attrD, fpD)
     if args.fastq:
-        if readclass == 'pass':
-            if fastqD['1T'] is not None:
-                fpD['fq1Tpass'].write('{0}\n'.format('\n'.join(fastqD['1T'])))
-                fpD['fq1Tpass'].flush()
-            if fastqD['1C'] is not None:
-                fpD['fq1Cpass'].write('{0}\n'.format('\n'.join(fastqD['1C'])))
-                fpD['fq1Cpass'].flush()
-            if fastqD['2D'] is not None:
-                fpD['fq2Dpass'].write('{0}\n'.format('\n'.join(fastqD['2D'])))
-                fpD['fq2Dpass'].flush()
-        elif readclass == 'fail':
-            if fastqD['1T'] is not None:
-                fpD['fq1Tfail'].write('{0}\n'.format('\n'.join(fastqD['1T'])))
-                fpD['fq1Tfail'].flush()
-            if fastqD['1C'] is not None:
-                fpD['fq1Cfail'].write('{0}\n'.format('\n'.join(fastqD['1C'])))
-                fpD['fq1Cfail'].flush()
-            if fastqD['2D'] is not None:
-                fpD['fq2Dfail'].write('{0}\n'.format('\n'.join(fastqD['2D'])))
-                fpD['fq2Dfail'].flush()
-        else:
-            mylogger.error('Unrecognised readclass {0} ({1})'.format(readclass, fast5path))
+        Extract_Fastq(mylogger, readclass, fastqD, fpD)
+    if args.stats:
+        Extract_Stats()
     return batchid
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptinstanceN, constD, fp):
@@ -116,6 +127,7 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
             batchD[batchid] = [exptid, batchid, '', args.instanceN]
             fp['batch'].write('{0}\n'.format('\t'.join(batchD[batchid])))
             fp['batch'].flush()
+    return 0
 
 def Files_Open(outdir, dofastq, dopairs, dostats, exptid, mylogger):
     'Open all the output files requested at the command-line.'
