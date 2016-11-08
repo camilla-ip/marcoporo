@@ -91,15 +91,15 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
     mylogger.info('Processing experiment {0}'.format(exptid))
     if args.pairs:
-        fp['batch'].write('{0}\n'.format('\t'.join(P.ontbatchH)))
-        fp['exptpairs'].write('{0}\n'.format('\t'.join(P.ontexptpairsH)))
-        fp['readpairs'].write('{0}\n'.format('\t'.join(P.ontreadpairsH)))
+        fp['batch'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontbatch'))))
+        fp['exptpairs'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontexptpairs'))))
+        fp['readpairs'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontreadpairs'))))
     if args.stats:
-        fp['exptstats'].write('{0}\n'.format('\t'.join(P.ontexptstatsH)))
-        fp['readstats'].write('{0}\n'.format('\t'.join(P.ontreadstatsH)))
-        fp['readeventstats'].write('{0}\n'.format('\t'.join(P.ontreadeventstatsH)))
-        fp['read1dstats'].write('{0}\n'.format('\t'.join(P.ontread1dstatsH)))
-        fp['read2dstats'].write('{0}\n'.format('\t'.join(P.ontread2dstatsH)))
+        fp['exptstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontexptstats'))))
+        fp['readstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontreadstats'))))
+        fp['readeventstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontreadeventstats'))))
+        fp['read1dstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontread1dstats'))))
+        fp['read2dstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontread2dstats'))))
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')

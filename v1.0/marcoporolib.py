@@ -90,7 +90,7 @@ class marcoporolib(object):
             ('exptid', 'S20'),
             ('batchid', 'S20'),
             ('instanceN', 'S20'),
-            'instanceN', 'S20'),
+            ('instanceN', 'S20'),
             ('var', 'S200'),
             ('val', 'S300'),
             ('comment', 'S200'),
@@ -107,34 +107,111 @@ class marcoporolib(object):
             ('dbuserid', 'S20')
         ]
         self.ontexptstatsH = [
-            'exptid', 'batchid', 'runid', 'samplingrate', 'asicid',
-            'deviceid', 'flowcellid', 'scriptname', 'scriptpurpose', 'starttime',
-            'starttimeiso', 'versionname', 'version', 'workflowfullname', 'workflowshortname',
-            'workflowversion', 'numericalencoding', 'precision', 'tool'
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('samplingrate', np.float),
+            ('asicid', 'S20'),
+            ('deviceid', 'S20'),
+            ('flowcellid', 'S20'),
+            ('scriptname', 'S100'),
+            ('scriptpurpose', 'S100'),
+            ('starttime', np.int),
+            ('starttimeiso', 'S30'),
+            ('versionname', 'S100'),
+            ('version', 'S20'),
+            ('workflowfullname', 'S100'),
+            ('workflowshortname', 'S100'),
+            ('workflowversion', 'S100'),
+            ('numericalencoding', 'S20'),
+            ('precision', 'S20'),
+            ('tool', 'S100'),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
         ]
         self.ontreadstatsH = [
-            'exptid', 'batchid', 'runid', 'readid', 'channelnumber',
-            'readnumber', 'filenumber', 'readclass', 'asictemp', 'heatsinktemp',
-            'readstarttime', 'readduration', 'readstarttimesec', 'readendtimesec', 'readstarttimeiso',
-            'readendtimeiso'
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('channelnumber', np.int),
+            ('readnumber', np.int),
+            ('filenumber', np.int),
+            ('readclass', 'S8'),
+            ('asictemp', np.float),
+            ('heatsinktemp', np.float),
+            ('readstarttime', np.int),
+            ('readduration', np.float),
+            ('readstarttimesec', np.float),
+            ('readendtimesec', np.float),
+            ('readstarttimeiso', 'S30'),
+            ('readendtimeiso', 'S30'),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
         ]
         self.ontreadeventstatsH = [
-            'exptid', 'batchid', 'runid', 'readid', 'eventinstanceN',
-            'eventstarttime', 'eventduration', 'eventcount', 'eventspersec', 'eventstarttimeiso',
-            'eventendtimeiso'
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('eventinstanceN', 'S4'),
+            ('eventstarttime', np.float),
+            ('eventduration', np.float),
+            ('eventcount', np.int),
+            ('eventspersec', np.float),
+            ('eventstarttimeiso', 'S30'),
+            ('eventendtimeiso', 'S30'),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
         ]
         self.ontread1dstatsH = [
-            'exptid', 'batchid', 'runid', 'readid', 'bc1dinstanceN',
-            'readtype', 'hpinalignnum', 'hpinalignend', 'hpinalignstart', 'hpinalignduration',
-            'hpinsplitduration', 'hpinsplitnum', 'numraw', 'nummerged', 'numevents',
-            'numskip', 'numstays', 'numcalled', 'strandstarttime', 'strandduration',
-            'strandstarttimeiso', 'strandendtimeiso', 'meanqscore', 'strandscore', 'seqlen',
-            'bqlen', 'bqmean', 'bqmedian', 'gcmean'
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('bc1dinstanceN', 'S4'),
+            ('readtype', 'S2'),
+            ('hpinalignnum', np.int),
+            ('hpinalignend', np.int),
+            ('hpinalignstart', np.int),
+            ('hpinalignduration', np.float),
+            ('hpinsplitduration', np.float),
+            ('hpinsplitnum', np.int),
+            ('numraw', np.int),
+            ('nummerged', np.int),
+            ('numevents', np.int),
+            ('numskip', np.int),
+            ('numstays', np.int),
+            ('numcalled', np.int),
+            ('strandstarttime', np.float),
+            ('strandduration', np.float),
+            ('strandstarttimeiso', 'S30'),
+            ('strandendtimeiso', 'S30'),
+            ('meanqscore', np.float),
+            ('strandscore', np.float),
+            ('seqlen', np.int),
+            ('bqlen', np.int),
+            ('bqmean', np.float),
+            ('bqmedian', np.float),
+            ('gcmean', np.float),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
         ]
         self.ontread2dstatsH = [
-            'exptid', 'batchid', 'runid', 'readid', 'bc2instanceN',
-            'meanqscore', 'strandscore', 'seqlen', 'bqlen', 'bqmean',
-            'bqmedian', 'gcmean'
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('bc2instanceN', 'S4'),
+            ('meanqscore', np.float),
+            ('strandscore', np.float),
+            ('seqlen', np.int),
+            ('bqlen', np.int),
+            ('bqmean', np.float),
+            ('bqmedian', np.float),
+            ('gcmean', np.float),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
         ]
 
     # err
@@ -413,6 +490,27 @@ class marcoporolib(object):
             #        newkey = '/'.join(keypartL)
             #        filteredD[newkey] = attributeD[key] 
         return filteredD, True
+
+    def fast5_headernames(self, tablename):
+        'Return a list of the header names in the case they appear in this file, or None.'
+        result = None
+        if tablename == 'ontbatch':
+            result = [x[0] for x in self.ontbatchH[:-2]]
+        elif tablename == 'ontexptpairs':
+            result = [x[0] for x in self.ontexptpairsH[:-2]]
+        elif tablename == 'ontreadpairs':
+            result = [x[0] for x in self.ontreadpairsH[:-2]]
+        elif tablename == 'ontexptstats':
+            result = [x[0] for x in self.ontexptstatsH[:-2]]
+        elif tablename == 'ontreadstats':
+            result = [x[0] for x in self.ontreadstatsH[:-2]]
+        elif tablename == 'ontreadevent':
+            result = [x[0] for x in self.ontreadeventstatsH[:-2]]
+        elif tablename == 'ontread1dstats':
+            result = [x[0] for x in self.ontread1dstatsH[:-2]]
+        elif tablename == 'ontread2dstats':
+            result = [x[0] for x in self.ontread2dstatsH[:-2]]
+        return result
 
     # conf
 
