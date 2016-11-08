@@ -504,7 +504,7 @@ class marcoporolib(object):
             result = [x[0] for x in self.ontexptstatsH[:-2]]
         elif tablename == 'ontreadstats':
             result = [x[0] for x in self.ontreadstatsH[:-2]]
-        elif tablename == 'ontreadevent':
+        elif tablename == 'ontreadeventstats':
             result = [x[0] for x in self.ontreadeventstatsH[:-2]]
         elif tablename == 'ontread1dstats':
             result = [x[0] for x in self.ontread1dstatsH[:-2]]
