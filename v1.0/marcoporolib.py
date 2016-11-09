@@ -131,6 +131,7 @@ class marcoporolib(object):
             ('batchid', 'S20'),
             ('runid', 'S200'),
             ('readid', 'S200'),
+            ('filename', 'S300'),
             ('channelnumber', np.int),
             ('readnumber', np.int),
             ('filenumber', np.int),
