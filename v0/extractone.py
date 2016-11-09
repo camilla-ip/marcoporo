@@ -129,7 +129,8 @@ def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fas
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
-         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN)])
+         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
     exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
     samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
   # Returned
@@ -181,7 +182,8 @@ def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
-         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN)])
+         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
     exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
     samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
   # Returned
@@ -229,7 +231,8 @@ def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
-         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN)])
+         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
     exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
     samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
     hpsinstanceN = instanceN
@@ -307,7 +310,8 @@ def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD,  '-1',
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
-         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN)])
+         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
     exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
     samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
     hpsinstanceN = instanceN
@@ -402,7 +406,8 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
-         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN)])
+         'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
     bc1dinstanceN = instanceN
     samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
     tempduration = float(Attr(attrD, '-1',
@@ -466,7 +471,7 @@ def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass,
     mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1}\n'.format(exptid, readclass))
     if fast5path.endswith('MinION2_20160727_FNFAD22137_MN16454_sequencing_run_Chip92_MARC_R9_2D_UBC_69955_ch100_read125_strand.fast5'):
         pass
-    attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, instanceN, args.pairs, True, args.fastq, True, args.fastqheaderformat)
+    attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, instanceN, True, True, args.fastq, True, args.fastqheaderformat)
     if not len(attrD.keys()):
         return None
     filteredattrD, filterok = P.fast5_attributes_filter(attrD, instanceN)
@@ -483,8 +488,8 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     'Iterate through each FAST5 file for this experiment, save metadata to files.'
     mylogger.info('Processing experiment {0}'.format(exptid))
   # Print headers, if required
+    fp['batch'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontbatch'))))
     if args.pairs:
-        fp['batch'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontbatch'))))
         fp['exptpairs'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontexptpairs'))))
         fp['readpairs'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontreadpairs'))))
     if args.stats:
