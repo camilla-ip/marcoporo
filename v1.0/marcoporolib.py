@@ -73,8 +73,10 @@ class marcoporolib(object):
     # fast5
 
         self.fast5fastqpath = {
-            '1T' : [	'Analyses/Basecall_1D_NNN/BaseCalled_template/Fastq' ],
-            '1C' : [	'Analyses/Basecall_1D_NNN/BaseCalled_complement/Fastq' ],
+            '1T' : [	'Analyses/Basecall_1D_NNN/BaseCalled_template/Fastq',
+                        'Analyses/Basecall_2D_NNN/BaseCalled_template/Fastq' ],
+            '1C' : [	'Analyses/Basecall_1D_NNN/BaseCalled_complement/Fastq',
+                        'Analyses/Basecall_2D_NNN/BaseCalled_complement/Fastq' ],
             '2D' : [	'Analyses/Basecall_2D_NNN/BaseCalled_2D/Fastq' ]
         }
 
@@ -434,6 +436,13 @@ class marcoporolib(object):
         hdf = h5py.File(fast5path, 'r')
         if getattributes:
            attributeD, runnumberD, readnumberD = self.fast5_attributes(hdf, ignoredatasets)
+           readnumberS = readnumberD[readnumberD.keys()[0]][1]
+           try:
+               event_count_key = 'Analyses/EventDetection_{0}/Reads/Read_{1}/Events'.format(basecallN, readnumberS)
+               eventcount = len(hdf[event_count_key][()])
+               attributeD['event_count'] = ['int', str(eventcount)]
+           except:
+               pass
         if getfastq:
             fastqD = self.fast5_fastq(hdf, basecallN, fast5path if addfastqpath else None, fastqheaderformat)
         hdf.close()
