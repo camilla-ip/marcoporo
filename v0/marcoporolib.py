@@ -438,8 +438,6 @@ class marcoporolib(object):
             hdf = h5py.File(fast5path, 'r')
         except:
             return attributeD, runnumberD, readnumberD, fastqD
-        except:
-            return attributeD, runnumberD, readnumberD, fastqD
         if getattributes:
            attributeD, runnumberD, readnumberD = self.fast5_attributes(hdf, ignoredatasets)
            readnumberS = readnumberD[readnumberD.keys()[0]][1]
