@@ -4,6 +4,6 @@
 
 __program__ = 'marcoporo'
 __description__ = 'marcoporo nanopore data comparison software'
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 # ============================================================================ #

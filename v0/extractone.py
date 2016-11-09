@@ -22,7 +22,7 @@ from Bio.SeqUtils import GC
 import marcoporoversion
 
 _processname = 'extractone'
-_fast5samplesize = 3
+_messageinterval = 1000
 
 def Attr(attrD, defaultvalue, pathL):
     'Return the first retrievable value in pathL.'
@@ -175,6 +175,7 @@ def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fas
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['readstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['readstats'].flush()
     return 0
 
 def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
@@ -224,6 +225,7 @@ def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['readeventstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['readeventstats'].flush()
     return 0
 
 def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
@@ -303,6 +305,7 @@ def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['read1dstats'].flush()
     return 0
 
 def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
@@ -391,6 +394,7 @@ def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['read1dstats'].flush()
     return 0
 
 def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
@@ -452,6 +456,7 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['read2dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['read2dstats'].flush()
     return 0
 
 def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD, fast5file):
@@ -510,6 +515,8 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     batchD = {}
     for fast5dir, fast5, readclass in fast5L:
         fcnt += 1
+        if ((fcnt % _messageinterval) == 0):
+            mylogger.info('Processing {0}-th file of experiment {1}'.format(fcnt, exptid))
         batchid = Extract_Fast5_Data(fcnt, args, P, mylogger, exptid, os.path.join(fast5dir, fast5), readclass, fp, constD, exptinstanceN)
         if batchid is not None and not batchD.has_key(batchid):
             batchD[batchid] = [exptid, batchid, '', args.instanceN]
