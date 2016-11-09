@@ -13,9 +13,9 @@ import marcoporoversion
 _mylogger = None
 _processname = 'extract'
 _fast5samplesize = 3
-_ontbatchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
-_ontexptpairH = ['exptid', 'batchid', 'instanceN', 'var', 'val']
-_ontreadpairH = ['exptid', 'batchid', 'readid', 'instanceN', 'var', 'val']
+#_ontbatchH = ['exptid', 'batchid', 'batchds', 'bestnnn']
+#_ontexptpairH = ['exptid', 'batchid', 'instanceN', 'var', 'val']
+#_ontreadpairH = ['exptid', 'batchid', 'readid', 'instanceN', 'var', 'val']
 
 def Get_BasecallN(attr):
     '''
@@ -76,8 +76,14 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
 
   # Write the header rows
     if args.pairs:
-        fp['ontexptpair'].write('{0}\n'.format('\t'.join(_ontexptpairH)))
-        fp['ontreadpair'].write('{0}\n'.format('\t'.join(_ontreadpairH)))
+        fp['ontexptpair'].write('{0}\n'.format('\t'.join(P.ontexptpairH)))
+        fp['ontreadpair'].write('{0}\n'.format('\t'.join(P.ontreadpairH)))
+    if args.stats:
+        fp['ontexptstats'].write('{0}\n'.format('\t'.join(P.ontexptstatsH)))
+        fp['ontreadstats'].write('{0}\n'.format('\t'.join(P.ontreadstatsH)))
+        fp['ontreadeventstats'].write('{0}\n'.format('\t'.join(P.ontreadeventstatsH)))
+        fp['ontread1dstats'].write('{0}\n'.format('\t'.join(P.ontread1dstatsH)))
+        fp['ontread2dstats'].write('{0}\n'.format('\t'.join(P.ontread2dstatsH)))
 
   # Iterate across all FAST5 files
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
@@ -191,7 +197,7 @@ def Process(args, P, mylogger, myhandler, processname):
     constL = open(os.path.join(args.outdir, P.file_exptconstantfields()), 'r').read().strip().split('\n')
     constD = dict(itertools.izip(constL, len(constL)*[None]))
     if args.fastq or args.model or args.pairs or args.stats:
-        fp = PairFiles_Open(args.outdir)
+        fp = Files_Open(args.outdir)
         Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD, fp)
         Files_Close(fp)
     else:

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # CI 2016-11-09
-/well/bsg/microbial/marc/phase2/marcoporo/v1.0/marcoporo.py exptconstants \
--bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+/well/bsg/microbial/marc/phase2/marcoporo/v0/marcoporo.py exptconstants \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v0 \
 -profile None \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -experiments /well/bsg/microbial/marc/phase2/marcp2/data/00-config/experiments.txt \
@@ -11,8 +11,8 @@
 
 # CI 2016-11-09
 nohup nice \
-/well/bsg/microbial/marc/phase2/marcoporo/v1.0/marcoporo.py extractone \
--bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+/well/bsg/microbial/marc/phase2/marcoporo/v0/marcoporo.py extractone \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v0 \
 -profile None \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P1b-Lab2-R2-2D \
@@ -26,8 +26,8 @@ nohup nice \
 &> /well/bsg/microbial/marc/phase2/marcp2/data/02-extract/P1b-Lab2-R2-2D_extractone.log &
 
 nohup nice \
-/well/bsg/microbial/marc/phase2/marcoporo/v1.0/marcoporo.py extractone \
--bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+/well/bsg/microbial/marc/phase2/marcoporo/v0/marcoporo.py extractone \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v0 \
 -profile None \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P2-Lab6-R1-1D \
@@ -41,8 +41,8 @@ nohup nice \
 &> /well/bsg/microbial/marc/phase2/marcp2/data/02-extract/P2-Lab6-R1-1D_extractone.log &
 
 nohup nice \
-/well/bsg/microbial/marc/phase2/marcoporo/v1.0/marcoporo.py extractone \
--bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+/well/bsg/microbial/marc/phase2/marcoporo/v0/marcoporo.py extractone \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v0 \
 -profile None \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P2-Lab6-R1-2D \
@@ -56,8 +56,8 @@ nohup nice \
 &> /well/bsg/microbial/marc/phase2/marcp2/data/02-extract/P2-Lab6-R1-2D_extractone.log &
 
 nohup nice \
-/well/bsg/microbial/marc/phase2/marcoporo/v1.0/marcoporo.py extractone \
--bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+/well/bsg/microbial/marc/phase2/marcoporo/v0/marcoporo.py extractone \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v0 \
 -profile None \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P2-Lab7-R1-1D \
@@ -71,8 +71,8 @@ nohup nice \
 &> /well/bsg/microbial/marc/phase2/marcp2/data/02-extract/P2-Lab7-R1-1D_extractone.log &
 
 nohup nice \
-/well/bsg/microbial/marc/phase2/marcoporo/v1.0/marcoporo.py extractone \
--bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+/well/bsg/microbial/marc/phase2/marcoporo/v0/marcoporo.py extractone \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v0 \
 -profile None \
 -config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
 -exptid P2-Lab7-R1-2D \
