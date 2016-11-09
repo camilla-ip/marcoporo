@@ -467,6 +467,8 @@ def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass,
     if fast5path.endswith('MinION2_20160727_FNFAD22137_MN16454_sequencing_run_Chip92_MARC_R9_2D_UBC_69955_ch100_read125_strand.fast5'):
         pass
     attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, instanceN, args.pairs, True, args.fastq, True, args.fastqheaderformat)
+    if not len(attrD.keys()):
+        return None
     filteredattrD, filterok = P.fast5_attributes_filter(attrD, instanceN)
     batchid = Get_Batchid(fast5path)
     if args.pairs:
