@@ -16,6 +16,7 @@ import os
 import random
 import sys
 import time
+from Bio.SeqUtils import GC
 
 import marcoporoversion
 
@@ -54,6 +55,7 @@ def Extract_Pairs(P, constD, exptid, batchid, instanceN, attrD, fpD):
             fpD['readpairs'].write('{0}\n'.format('\t'.join(row)))
     fpD['exptpairs'].flush()
     fpD['readpairs'].flush()
+    return 0
 
 def Extract_Fastq(mylogger, readclass, fastqD, fpD):
     if readclass == 'pass':
@@ -78,6 +80,7 @@ def Extract_Fastq(mylogger, readclass, fastqD, fpD):
             fpD['fq2Dfail'].flush()
     else:
         mylogger.error('Unrecognised readclass {0} ({1})'.format(readclass, fast5path))
+    return 0
 
 def Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD):
     'Only one row per experiment required.'
@@ -109,6 +112,7 @@ def Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD):
         dtype=P.ontexptstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['exptstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    return 0
 
 def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD):
   # Intermediate
@@ -140,6 +144,7 @@ def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD):
         dtype=P.ontreadstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['readstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    return 0
 
 def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
   # Intermediate
@@ -169,102 +174,96 @@ def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
         dtype=P.ontreadeventstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['readeventstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    return 0
 
-def Print_ontread1tstats(P, exptid, batchid, instanceN, attrD, fpD):
+def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, fpD):
   # Intermediate
     readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+    hpsinstanceN = instanceN
+    bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]])
   # Returned
     runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
     readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
-    bc1dinstanceN = 'X'
-    readtype = 'X'
-    hpinalignnum = -1
-    hpinalignend = -1
-    hpinalignstart = -1
-    hpinalignduration = -1
-    hpinsplitduration = -1
-    hpinsplitnum = -1
-    numraw = -1
-    nummerged = -1
-    numevents = -1
-    numskip = -1
-    numstays = -1
-    numcalled = -1
-    strandstarttime = -1
-    strandduration = -1
-    strandstarttimeiso = 'X'
-    strandendtimeiso = 'X'
-    meanqscore = -1
-    strandscore = -1
-    seqlen = -1
-    bqlen = -1
-    bqmean = -1
-    bqmedian = -1
-    gcmean = -1
+    bc1dinstanceN = instanceN
+    numevents = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_events'.format(bc1dinstanceN)][1])
+    numskips = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_skips'.format(bc1dinstanceN)][1])
+    numstays = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_stays'.format(bc1dinstanceN)][1])
+    numcalled = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/called_events'.format(bc1dinstanceN)][1])
+    strandstarttime = float(attrD['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/start_time'.format(bc1dinstanceN)][1])
+    strandduration = float(attrD['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN)][1])
+    strandstarttimesec = exp_start_time + strandstarttime / samplingrate
+    strandendtimesec = exp_start_time + strandstarttime / samplingrate + strandduration / samplingrate
+    strandstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(strandstarttimesec))
+    strandendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(strandendtimesec))
+    meanqscore = float(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/mean_qscore'.format(bc1dinstanceN)][1])
+    strandscore = float(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/strand_score'.format(bc1dinstanceN)][1])
+    seqlen = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/sequence_length'.format(bc1dinstanceN)][1])
+    bqlen = len(fastqD[readtype][1])
+    bqmean = np.mean(bqnumA)
+    bqmedian = np.median(bqnumA)
+    gcpct = round(GC(fastqD[readtype][1]), 1)
     comment = ''
     dbuserid = ''
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc1dinstanceN,
-        readtype, hpinalignnum, hpinalignend, hpinalignstart, hpinalignduration,
-        hpinsplitduration, hpinsplitnum, numraw, nummerged, numevents,
-        numskip, numstays, numcalled, strandstarttime, strandduration,
-        strandstarttimeiso, strandendtimeiso, meanqscore, strandscore, seqlen,
-        bqlen, bqmean, bqmedian, gcmean, comment,
-        dbuserid),
+        readtype, numevents, numskips, numstays, numcalled,
+        strandstarttime, strandduration, strandstarttimeiso, strandendtimeiso, meanqscore,
+        strandscore, seqlen, bqlen, bqmean, bqmedian,
+        gcpct, comment, dbuserid),
         dtype=P.ontread1dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    return 0
 
-def Print_ontread1cstats(P, exptid, batchid, instanceN, attrD, fpD):
+def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, fpD):
   # Intermediate
     readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
+    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+    hpsinstanceN = instanceN
+    bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]])
   # Returned
     runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
     readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
-    bc1dinstanceN = 'X'
-    readtype = 'X'
-    hpinalignnum = -1
-    hpinalignend = -1
-    hpinalignstart = -1
-    hpinalignduration = -1
-    hpinsplitduration = -1
-    hpinsplitnum = -1
-    numraw = -1
-    nummerged = -1
-    numevents = -1
-    numskip = -1
-    numstays = -1
-    numcalled = -1
-    strandstarttime = -1
-    strandduration = -1
-    strandstarttimeiso = 'X'
-    strandendtimeiso = 'X'
-    meanqscore = -1
-    strandscore = -1
-    seqlen = -1
-    bqlen = -1
-    bqmean = -1
-    bqmedian = -1
-    gcmean = -1
+    bc1dinstanceN = instanceN
+    numevents = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_events'.format(bc1dinstanceN)][1])
+    numskips = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_skips'.format(bc1dinstanceN)][1])
+    numstays = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_stays'.format(bc1dinstanceN)][1])
+    numcalled = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/called_events'.format(bc1dinstanceN)][1])
+    strandstarttime = float(attrD['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/start_time'.format(bc1dinstanceN)][1])
+    strandduration = float(attrD['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN)][1])
+    strandstarttimesec = exp_start_time + strandstarttime / samplingrate
+    strandendtimesec = exp_start_time + strandstarttime / samplingrate + strandduration / samplingrate
+    strandstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(strandstarttimesec))
+    strandendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(strandendtimesec))
+    meanqscore = float(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/mean_qscore'.format(bc1dinstanceN)][1])
+    strandscore = float(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/strand_score'.format(bc1dinstanceN)][1])
+    seqlen = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/sequence_length'.format(bc1dinstanceN)][1])
+    bqlen = len(fastqD[readtype][1])
+    bqmean = np.mean(bqnumA)
+    bqmedian = np.median(bqnumA)
+    gcpct = round(GC(fastqD[readtype][1]), 1)
     comment = ''
     dbuserid = ''
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc1dinstanceN,
-        readtype, hpinalignnum, hpinalignend, hpinalignstart, hpinalignduration,
-        hpinsplitduration, hpinsplitnum, numraw, nummerged, numevents,
-        numskip, numstays, numcalled, strandstarttime, strandduration,
-        strandstarttimeiso, strandendtimeiso, meanqscore, strandscore, seqlen,
-        bqlen, bqmean, bqmedian, gcmean, comment,
-        dbuserid),
+        readtype, numevents, numskips, numstays, numcalled,
+        strandstarttime, strandduration, strandstarttimeiso, strandendtimeiso, meanqscore,
+        strandscore, seqlen, bqlen, bqmean, bqmedian,
+        gcpct, comment, dbuserid),
         dtype=P.ontread1dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    return 0
 
-def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fpD):
-    Print_ontread1tstats(P, exptid, batchid, instanceN, attrD, fpD)
-    Print_ontread1cstats(P, exptid, batchid, instanceN, attrD, fpD)
+def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
+    Print_ontread1tstats(P, exptid, batchid, instanceN, '1T', attrD, fastqD, fpD)
+    Print_ontread1cstats(P, exptid, batchid, instanceN, '1C', attrD, fastqD, fpD)
+    return 0
 
-def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD):
+def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
   # Intermediate
     readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
   # Returned
@@ -277,25 +276,26 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD):
     bqlen = -1
     bqmean = -1
     bqmedian = -1
-    gcmean = -1
+    gcpct = -1
     comment = ''
     dbuserid = ''
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc2instanceN,
         meanqscore, strandscore, seqlen, bqlen, bqmean,
-        bqmedian, gcmean, comment, dbuserid),
+        bqmedian, gcpct, comment, dbuserid),
         dtype=P.ontread2dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     fpD['read2dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    return 0
 
-def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fpD):
+def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD):
     'Print records from current fast5 file to ont[expt|read]stats, ontread[event|1d|2d]stats files.'
     if filecnt == 1:
         Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD)
     Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD)
     Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD)
-    Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fpD)
-    Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fpD)
+    Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD)
+    Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD)
     return 0
 
 def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):
@@ -309,7 +309,7 @@ def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass,
     if args.fastq:
         Extract_Fastq(mylogger, readclass, fastqD, fpD)
     if args.stats:
-        Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fpD)
+        Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD)
     return batchid
 
 def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir, exptinstanceN, constD, fp):
@@ -405,6 +405,7 @@ def Prerequisites(args, P, mylogger, myhandler, processname):
     if not os.path.exists(exptconstants_path):
         mylogger.error('Input file missing ({0}). Please run \'marcoporo.py exptconstants\' now'.format(exptconstants_path))
         sys.exit(P.err_code('ErrorFileMissing'))
+    return 0
 
 def Process(args, P, mylogger, myhandler, processname, exptid):
     'Read file of constant field names produced by marcoporo exptconstants.'
@@ -429,3 +430,4 @@ def run(parser, args, P, mylogger, myhandler, argv):
     Prerequisites(args, P, mylogger, myhandler, _processname)
     Process(args, P, mylogger, myhandler, _processname, args.exptid)
     mylogger.info('Finished')
+    return 0

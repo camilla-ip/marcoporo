@@ -174,14 +174,6 @@ class marcoporolib(object):
             ('readid', 'S200'),
             ('bc1dinstanceN', 'S4'),
             ('readtype', 'S2'),
-            ('hpinalignnum', np.int),
-            ('hpinalignend', np.int),
-            ('hpinalignstart', np.int),
-            ('hpinalignduration', np.float),
-            ('hpinsplitduration', np.float),
-            ('hpinsplitnum', np.int),
-            ('numraw', np.int),
-            ('nummerged', np.int),
             ('numevents', np.int),
             ('numskip', np.int),
             ('numstays', np.int),
@@ -196,7 +188,7 @@ class marcoporolib(object):
             ('bqlen', np.int),
             ('bqmean', np.float),
             ('bqmedian', np.float),
-            ('gcmean', np.float),
+            ('gcpct', np.float),
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
