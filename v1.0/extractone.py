@@ -451,6 +451,8 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
 
 def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD, fast5file):
     'Print records from current fast5 file to ont[expt|read]stats, ontread[event|1d|2d]stats files.'
+    if not len(attrD):
+        return 0
     if filecnt == 1:
         Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD)
     Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fast5file)
@@ -532,10 +534,11 @@ def Files_Open(outdir, dofastq, dopairs, dostats, exptid, mylogger):
         'read2dstats' : os.path.join(outdir, '{exptid}_read2dstats.txt'.format(exptid=exptid))
     }
     keyL = []
+    keyL += ['batch']
     if dofastq:
         keyL += ['fq1Tpass', 'fq1Tfail', 'fq1Cpass', 'fq1Cfail', 'fq2Dpass', 'fq2Dfail']
     if dopairs:
-        keyL += ['batch', 'exptpairs', 'readpairs']
+        keyL += ['exptpairs', 'readpairs']
     if dostats:
         keyL += ['exptstats', 'readstats', 'readeventstats', 'read1dstats', 'read2dstats']
     failed = False
@@ -576,7 +579,7 @@ def Process(args, P, mylogger, myhandler, processname, exptid):
     exptconstants_path = os.path.join(args.outdir, P.file_exptconstants())
     constL = open(os.path.join(args.outdir, P.file_exptconstantfields()), 'r').read().strip().split('\n')
     constD = dict(itertools.izip(constL, len(constL)*[None]))
-    if args.fastq or args.model or args.pairs or args.stats:
+    if args.fastq or args.pairs or args.stats:
         fp = Files_Open(args.outdir, args.fastq, args.pairs, args.stats, args.exptid, mylogger)
         Extract_Expt_Data(args, P, mylogger, myhandler, processname, args.exptid, args.indir, args.instanceN, constD, fp)
         Files_Close(fp)
@@ -588,7 +591,6 @@ def run(parser, args, P, mylogger, myhandler, argv):
     'Execute this sub-tool.'
     mylogger.info('Started')
     args.fastq = P.str_2bool(args.fastq)
-    args.model = P.str_2bool(args.model)
     args.pairs = P.str_2bool(args.pairs)
     args.stats = P.str_2bool(args.stats)
     Prerequisites(args, P, mylogger, myhandler, _processname)

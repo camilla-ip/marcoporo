@@ -131,8 +131,8 @@ def main():
         help='Output directory (specify absolute path)')
     p02.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
         help='1D and 2D basecalls')
-    p02.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
-        help='Model parameters used in basecalling')
+    #p02.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
+    #    help='Model parameters used in basecalling')
     p02.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
         help='Name-value pairs for each experiment and read attribute')
     p02.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
@@ -159,8 +159,8 @@ def main():
         help='Output directory (specify absolute path)')
     p03.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
         help='1D and 2D basecalls')
-    p03.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
-        help='Model parameters used in basecalling')
+    #p03.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
+    #    help='Model parameters used in basecalling')
     p03.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
         help='Name-value pairs for each experiment and read attribute')
     p03.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
