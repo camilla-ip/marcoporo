@@ -214,19 +214,27 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
+        self.extractstatfilesuffix = [
+            '_exptstats.txt',
+            '_readstats.txt',
+            '_readeventstats.txt',
+            '_read1dstats.txt',
+            '_read2dstats.txt'
+        ]
+        self.processmessageinterval = 1000
 
     # err
-
+        
     def err_dump(self):
         'Return a string containing all the error codes.'
         L = [[self.err[key][1], self.err[key][0], key, self.err[key][2]] for key in self.err.keys()]
         sorted(L, key = lambda x: int(x[0]))
         return '\n'.join(['\t'.join([str(x) for x in elt]) for elt in L])
-
+    
     def err_code(self, retkey):
         'Return the numerical return code value corresponding to the return code descriptor.'
         return self.err[retkey][0]
-
+    
     def err_retkey(self, retcode):
         'Return the return code descriptor string corresponding to the numerical return code.'
         return [key for key in self.err.keys() if self.err[key][0] == retcode]

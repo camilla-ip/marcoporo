@@ -22,7 +22,7 @@ from Bio.SeqUtils import GC
 import marcoporoversion
 
 _processname = 'extractone'
-_messageinterval = 1000
+#_messageinterval = 1000
 
 def Attr(attrD, defaultvalue, pathL):
     'Return the first retrievable value in pathL.'
@@ -515,7 +515,7 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     batchD = {}
     for fast5dir, fast5, readclass in fast5L:
         fcnt += 1
-        if ((fcnt % _messageinterval) == 0):
+        if ((fcnt % P.processmessageinterval) == 0):
             mylogger.info('Processing {0}-th file of experiment {1}'.format(fcnt, exptid))
         batchid = Extract_Fast5_Data(fcnt, args, P, mylogger, exptid, os.path.join(fast5dir, fast5), readclass, fp, constD, exptinstanceN)
         if batchid is not None and not batchD.has_key(batchid):

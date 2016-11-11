@@ -82,6 +82,8 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import extractone as submodule
     elif args.command == 'extract':
         import extract as submodule
+    elif args.command == 'aggregateone':
+        import aggregateone as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
@@ -149,11 +151,11 @@ def main():
         help='marcoporo environment statements (specify absolute path)')
     p03.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
         help='Analysis configuration file')
-    p03.add_argument('-exptid', dest='exptid', metavar='FILE', required=True, default=None,
+    p03.add_argument('-exptid', dest='exptid', metavar='STR', required=True, default=None,
         help='Experiment identifier')
-    p03.add_argument('-indir', dest='indir', metavar='FILE', required=True, default=None,
-        help='Experiment runfolder ')
-    p03.add_argument('-instanceN', dest='instanceN', metavar='FILE', required=False, default='000',
+    p03.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
+        help='Experiment runfolder (specify absolute path)')
+    p03.add_argument('-instanceN', dest='instanceN', metavar='STR', required=False, default='000',
         help='The instanceN basecalling instance to extract data from')
     p03.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
@@ -170,6 +172,22 @@ def main():
     p03.add_argument('-fastqheaderformat', dest='fastqheaderformat', metavar='FILE', required=False, default='concise',
         help='Output FASTQ header format [fast5|concise|poretools] ')
     p03.set_defaults(func=run_subtool)
+
+    p04 = subparsers.add_parser('aggregateone', help='Aggregate value from one experiment into time buckets',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p04.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p04.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p04.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    p04.add_argument('-exptid', dest='exptid', metavar='FILE', required=True, default=None,
+        help='Experiment identifier')
+    p04.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
+        help='Experiment runfolder (specify absolute path)')
+    p04.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
+    p04.set_defaults(func=run_subtool)
 
   # Parse the arguments
 
