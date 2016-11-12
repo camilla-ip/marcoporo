@@ -6,7 +6,10 @@ import numpy as np
 import os
 import psutil
 import re
+import shlex
 import signal
+import stat
+import subprocess as sp
 import sys
 
 class marcoporolib(object):
@@ -57,7 +60,8 @@ class marcoporolib(object):
         'ErrorReadingData'      : [ 34, 'Erro', 'Failed to read data' ],
         'ErrorFileCopy'         : [ 35, 'Erro', 'Failed to copy file' ],
         'ErrorFileNotLink'      : [ 36, 'Erro', 'Have a file not a symlink' ],
-        'ErrorOutputNotComplete': [ 37, 'Erro', 'Output is incomplete' ]
+        'ErrorOutputNotComplete': [ 37, 'Erro', 'Output is incomplete' ],
+        'ErrorFileCreate'       : [ 38, 'Erro', 'Failed to create file' ]
         }
         self.section = []
         self.option = {}        # self.option[section][var] = val
@@ -222,6 +226,54 @@ class marcoporolib(object):
             '_read2dstats.txt'
         ]
         self.processmessageinterval = 1000
+
+    # cmdfile
+
+#        self.cmdfilelogmsg = [
+#            'printf "# ========== #\\n"',
+#            'printf "SGE job ID: "$JOB_ID"\\n"',
+#            'printf "SGE task ID: "$SGE_TASK_ID"\\n"',
+#            'printf "SGE job name: "$JOB_NAME"\\n"',
+#            'printf "Run on host: "$HOSTNAME"\\n"',
+#            'printf "Operating system: "`uname -a`"\\n\\n"',
+#            'printf "Username: "$LOGNAME"\\n"',
+#            'printf "Started at: "`date +"%Y-%m-%d %H:%M:%S"`"\\n\\n"',
+#            'printf "# ========== #\\n"',
+#            'printf "Number of hosts: "$NHOSTS"\\n"',
+#            'printf "Number of queues: "$NQUEUES"\\n"',
+#            'printf "Number of slots: "$NSLOTS"\\n"',
+#            'printf "Job submitted from host: "$SGE_O_HOST"\\n"',
+#            'printf "SGE root dir: "$SGE_ROOT"\\n"',
+#            'printf "SGE working dir: "$SGE_O_WORKDIR"\\n"',
+#            'printf "PATH at job submission: "$SGE_O_PATH"\\n"',
+#            'printf "# ========== #\\n"',
+#            'printf "\\n"'
+#        ]
+        self.cmdfile_logmsgstart = [
+            'echo "# ========== #"',
+            'echo "SGE job ID: "$JOB_ID',
+            'echo "SGE task ID: "$SGE_TASK_ID',
+            'echo "SGE job name: "$JOB_NAME',
+            'echo "Run on host: "$HOSTNAME',
+            'echo "Operating system: "`uname -a`',
+            'echo "Username: "$LOGNAME',
+            'echo "Started at: "`date +"%Y-%m-%d %H:%M:%S"`',
+            'echo "# ========== #',
+            'echo "Number of hosts: "$NHOSTS',
+            'echo "Number of queues: "$NQUEUES',
+            'echo "Number of slots: "$NSLOTS',
+            'echo "Job submitted from host: "$SGE_O_HOST',
+            'echo "SGE root dir: "$SGE_ROOT',
+            'echo "SGE working dir: "$SGE_O_WORKDIR',
+            'echo "PATH at job submission: "$SGE_O_PATH',
+            'echo "# ========== #',
+            'echo'
+        ]
+        self.cmdfile_logmsgfinish = [
+            'echo "Finished at: "`date +"%Y-%m-%d %H:%M:%S"`',
+            'echo "# ========== #"'
+        ]
+
 
     # err
         
@@ -697,6 +749,16 @@ class marcoporolib(object):
             return False
         return True
 
+    def sys_exec(self, cmd):
+        '''
+        Execute a command using the subprocess module to trap the
+        return value, the stdout string and stderr string.
+        '''
+        proc_handle = sp.Popen(shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE)
+        proc_stdout, proc_stderr = proc_handle.communicate()
+        proc_returncode = proc_handle.returncode
+        return [proc_returncode, proc_stdout, proc_stderr]
+
   # file
 
     def file_exptconstants(self):
@@ -704,3 +766,53 @@ class marcoporolib(object):
 
     def file_exptconstantfields(self):
         return 'exptconstantfields.txt'
+
+  # cmdfile
+
+    def cmdfile_qsubparams(self, section, jobname, logpath):
+        'Return qsub params that are the same for all jobs in this instance of aggregate.'
+        qsubparamL = []
+        if len(self.option[section]['sge_project']):
+            qsubparamL.append('#$ '+ self.option[section]['sge_project'])
+        if len(self.option[section]['sge_queue']):
+            qsubparamL.append('#$ '+self.option[section]['sge_queue'])
+        if len(self.option[section]['sge_parallelenv']):
+            qsubparamL.append('#$ '+self.option[section]['sge_parallelenv'])
+        if len(self.option[section]['sge_inheritenv']):
+            qsubparamL.append('#$ '+self.option[section]['sge_inheritenv'])
+        if len(self.option[section]['sge_mergelogs']):
+            qsubparamL.append('#$ '+self.option[section]['sge_mergelogs'])
+        if jobname is not None:
+            qsubparamL.append('#$ -N '+jobname)
+        if logpath is not None:
+            qsubparamL.append('#$ -o '+logpath)
+        return qsubparamL
+
+    def cmdfile_create(self, qsubparamL, cmd, cmdpath, overwrite=True):
+        try:
+            with open(cmdpath, 'w') as out_fp:
+                out_fp.write('#!/usr/bin/env bash\n')
+                out_fp.write('{0}\n\n'.format('\n'.join(qsubparamL)))
+                out_fp.write('{0}\n\n'.format('\n'.join(self.cmdfile_logmsgstart)))
+                out_fp.write('{0}\n'.format(cmd))
+                out_fp.write('{0}\n\n'.format('\n'.join(self.cmdfile_logmsgfinish)))
+            st = os.stat(cmdpath)
+            os.chmod(cmdpath, st.st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
+        except:
+            return 0
+        return 0
+
+    def cmdfile_run(self, cmdpath, jobidpath, runwithqsub=False):
+        if not runwithqsub:
+            cmd = cmdpath
+        else:
+            cmd = 'qsub '+cmdpath
+        rv, ro, re = self.sys_exec(cmd)
+        if len(ro) or ro is not None or len(re) or re is not None:
+            with open(jobidpath, 'w') as out_fp:
+                if len(ro) or ro is not None:
+                    out_fp.write('{0}\n'.format(ro))
+                if len(re) or re is not None:
+                    out_fp.write('{0}\n'.format(re))
+            return rv, ro+re
+        return rv, None

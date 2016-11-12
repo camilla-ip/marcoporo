@@ -38,7 +38,7 @@ def binmean(valA, timeA, binA):
 
 def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
     # Output file
-    outpath = os.path.join(args.outdir, args.exptid+'_read1d_timewin.txt')
+    outpath = os.path.join(args.outdir, args.exptid+'_aggregate_read1d.txt')
     # Time bins, every timebucket hours between 0 and maxrunlen hours
     binA = np.arange(0, args.maxrunlen+args.timebucket, args.timebucket)
     read1dpath = os.path.join(args.indir, exptid+'_read1dstats.txt')
