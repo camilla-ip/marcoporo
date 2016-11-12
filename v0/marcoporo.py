@@ -135,8 +135,6 @@ def main():
         help='Output directory (specify absolute path)')
     p02.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
         help='1D and 2D basecalls')
-    #p02.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
-    #    help='Model parameters used in basecalling')
     p02.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
         help='Name-value pairs for each experiment and read attribute')
     p02.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
@@ -163,8 +161,6 @@ def main():
         help='Output directory (specify absolute path)')
     p03.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
         help='1D and 2D basecalls')
-    #p03.add_argument('-model', dest='model', metavar='BOOL', required=False, default='True',
-    #    help='Model parameters used in basecalling')
     p03.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
         help='Name-value pairs for each experiment and read attribute')
     p03.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
@@ -274,10 +270,11 @@ def main():
     logger.info('Command: {0}'.format(' '.join(sys.argv)))
 
   # Call the selected sub-command, ignore SIGPIPEs (32)
+
     try:
         args.func(parser, args, _P, logger, handler)
-    except IOError, e:
-        if e.errno != 32:
+    except IOError, e :
+        if e.errno != 32: 
             logger.info('Received kill signal')
             raise
 

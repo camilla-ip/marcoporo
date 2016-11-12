@@ -9,11 +9,6 @@ import marcoporoversion
 
 _processname = 'aggregate'
 _jobprefix = 'mpa'
-#_fastqsuffixL = [
-#    '_1T_fail', '_1T_pass',
-#    '_1C_fail', '_1C_pass',
-#    '_2D_fail', '_2D_pass'
-#]
 
 def Prerequisites(args, P, mylogger, myhandler, processname):
     'Exit program if some prerequisites are not met.'
@@ -28,8 +23,6 @@ def AggregateOne(args, P, mylogger, exptid, jobprefix):
     if runwithqsub:
         jobname = '{jobprefix}{digits:04d}'.format(jobprefix=jobprefix, digits=random.randint(1, 9999))
         qsubparamL = P.cmdfile_qsubparams('aggregate', jobname, logpath)
-        #qsubparamL.append('-N '+jobname)
-        #qsubparamL.append('-o '+logpath)
     else:
         qsubparamL = []
     cmdL = [
@@ -62,7 +55,6 @@ def Aggregate(args, P, mylogger, myhandler, processname, exptidL, E):
     aggregateone command-line, schedule by executing with qsub and
     save the jobid to a file.
     '''
-    #qsubparamstaticL = Qsub_Params_Static(P)
     for exptid in exptidL:
         AggregateOne(args, P, mylogger, exptid, _jobprefix)
     return 0

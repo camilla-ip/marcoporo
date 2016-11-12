@@ -229,26 +229,6 @@ class marcoporolib(object):
 
     # cmdfile
 
-#        self.cmdfilelogmsg = [
-#            'printf "# ========== #\\n"',
-#            'printf "SGE job ID: "$JOB_ID"\\n"',
-#            'printf "SGE task ID: "$SGE_TASK_ID"\\n"',
-#            'printf "SGE job name: "$JOB_NAME"\\n"',
-#            'printf "Run on host: "$HOSTNAME"\\n"',
-#            'printf "Operating system: "`uname -a`"\\n\\n"',
-#            'printf "Username: "$LOGNAME"\\n"',
-#            'printf "Started at: "`date +"%Y-%m-%d %H:%M:%S"`"\\n\\n"',
-#            'printf "# ========== #\\n"',
-#            'printf "Number of hosts: "$NHOSTS"\\n"',
-#            'printf "Number of queues: "$NQUEUES"\\n"',
-#            'printf "Number of slots: "$NSLOTS"\\n"',
-#            'printf "Job submitted from host: "$SGE_O_HOST"\\n"',
-#            'printf "SGE root dir: "$SGE_ROOT"\\n"',
-#            'printf "SGE working dir: "$SGE_O_WORKDIR"\\n"',
-#            'printf "PATH at job submission: "$SGE_O_PATH"\\n"',
-#            'printf "# ========== #\\n"',
-#            'printf "\\n"'
-#        ]
         self.cmdfile_logmsgstart = [
             'echo "# ========== #"',
             'echo "SGE job ID: "$JOB_ID',

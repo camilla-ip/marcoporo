@@ -37,28 +37,28 @@ def binmean(valA, timeA, binA):
     return binmeans
 
 def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
-    # Output file
+  # Output file
     outpath = os.path.join(args.outdir, args.exptid+'_aggregate_read1d.txt')
-    # Time bins, every timebucket hours between 0 and maxrunlen hours
+  # Time bins, every timebucket hours between 0 and maxrunlen hours
     binA = np.arange(0, args.maxrunlen+args.timebucket, args.timebucket)
     read1dpath = os.path.join(args.indir, exptid+'_read1dstats.txt')
     read1d = np.genfromtxt(read1dpath, skiprows=1, delimiter='\t', dtype=P.ontread1dstatsH, missing_values="NA")
     endtimehrs = read1d[read1d[:]['readtype'] == '1T']['strandendtimesec']/60.0/60.0
-    # read1d_1T metrics aggregated by time bins
+  # read1d_1T metrics aggregated by time bins
     read1d_1T_stranddurationsec = binmean(read1d[read1d[:]['readtype'] == '1T']['stranddurationsec'], endtimehrs, binA)
     read1d_1T_meanqscore = binmean(read1d[read1d[:]['readtype'] == '1T']['meanqscore'], endtimehrs, binA)
     read1d_1T_meanseqlen = binmean(read1d[read1d[:]['readtype'] == '1T']['seqlen'], endtimehrs, binA)
     read1d_1T_meanbq = binmean(read1d[read1d[:]['readtype'] == '1T']['bqmean'], endtimehrs, binA)
     read1d_1T_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1T']['gcpct'], endtimehrs, binA)
     read1d_1T_meanbps = binmean(read1d[read1d[:]['readtype'] == '1T']['basespersecond'], endtimehrs, binA)
-    # read1d_1C metrics aggregated by time bins
+  # read1d_1C metrics aggregated by time bins
     read1d_1C_stranddurationsec = binmean(read1d[read1d[:]['readtype'] == '1C']['stranddurationsec'], endtimehrs, binA)
     read1d_1C_meanqscore = binmean(read1d[read1d[:]['readtype'] == '1C']['meanqscore'], endtimehrs, binA)
     read1d_1C_meanseqlen = binmean(read1d[read1d[:]['readtype'] == '1C']['seqlen'], endtimehrs, binA)
     read1d_1C_meanbq = binmean(read1d[read1d[:]['readtype'] == '1C']['bqmean'], endtimehrs, binA)
     read1d_1C_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1C']['gcpct'], endtimehrs, binA)
     read1d_1C_meanbps = binmean(read1d[read1d[:]['readtype'] == '1C']['basespersecond'], endtimehrs, binA)
-    # Create final 2D matrix (rows=timebuckets, columns=variables)
+  # Create final 2D matrix (rows=timebuckets, columns=variables) and save to file
     H = ['exptid', 'timehr',
          '1Tdurationsec1T', '1Tqscore', '1Tseqlen', '1Tbq', '1Tgcpct', '1Tbasesps',
          '1Cdurationsec1C', '1Cqscore', '1Cseqlen', '1Cbq', '1Cgcpct', '1Cbasesps']
