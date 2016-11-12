@@ -16,6 +16,7 @@ def Prerequisites(args, P, mylogger, myhandler, processname):
 
 def AggregateOne(args, P, mylogger, exptid, jobprefix):
     'Aggregate ont stats table metrics into timebucket windows for one experiment.'
+    mylogger.info('Processing experiment {0}'.format(exptid))
     cmdpath = os.path.join(args.outdir, '{exptid}_aggregate.sh'.format(exptid=exptid))
     logpath = os.path.join(args.outdir, '{exptid}_aggregate.sh.log'.format(exptid=exptid))
     jobidpath = os.path.join(args.outdir, '{exptid}_aggregate.sh.jobid'.format(exptid=exptid))
