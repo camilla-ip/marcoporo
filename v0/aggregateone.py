@@ -36,12 +36,11 @@ def binmean(valA, timeA, binA):
     binmeans = [valA[indices == i].mean() for i in range(0, len(binA))]
     return binmeans
 
-def Process(args, P, mylogger, myhandler, processname, exptid):
-    'Read file of constant field names produced by marcoporo exptconstants.'
+def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
     # Output file
-    outpath = os.path.join(args.outdir, args.exptid+'_aggregate.txt')
-    # Time bins, every 0.25 hours between 0 and 48 hours
-    binA = np.arange(0,2*24+0.25,0.25)
+    outpath = os.path.join(args.outdir, args.exptid+'_read1d_timewin.txt')
+    # Time bins, every timebucket hours between 0 and maxrunlen hours
+    binA = np.arange(0, args.maxrunlen+args.timebucket, args.timebucket)
     read1dpath = os.path.join(args.indir, exptid+'_read1dstats.txt')
     read1d = np.genfromtxt(read1dpath, skiprows=1, delimiter='\t', dtype=P.ontread1dstatsH, missing_values="NA")
     endtimehrs = read1d[read1d[:]['readtype'] == '1T']['strandendtimesec']/60.0/60.0
@@ -59,14 +58,10 @@ def Process(args, P, mylogger, myhandler, processname, exptid):
     read1d_1C_meanbq = binmean(read1d[read1d[:]['readtype'] == '1C']['bqmean'], endtimehrs, binA)
     read1d_1C_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1C']['gcpct'], endtimehrs, binA)
     read1d_1C_meanbps = binmean(read1d[read1d[:]['readtype'] == '1C']['basespersecond'], endtimehrs, binA)
-    # Create final 2D matrix (X=variables, Y=timebuckets)
+    # Create final 2D matrix (rows=timebuckets, columns=variables)
     H = ['exptid', 'timehr',
          '1Tdurationsec1T', '1Tqscore', '1Tseqlen', '1Tbq', '1Tgcpct', '1Tbasesps',
          '1Cdurationsec1C', '1Cqscore', '1Cseqlen', '1Cbq', '1Cgcpct', '1Cbasesps']
-    #A = np.column_stack((
-    #    read1d_exptid, binA,
-    #    read1d_1T_stranddurationsec, read1d_1T_meanqscore, read1d_1T_meanseqlen, read1d_1T_meanbq, read1d_1T_meangcpct, read1d_1T_meanbps,
-    #    read1d_1C_stranddurationsec, read1d_1C_meanqscore, read1d_1C_meanseqlen, read1d_1C_meanbq, read1d_1C_meangcpct, read1d_1C_meanbps))
     exptidA = np.array([exptid]*len(binA))
     A = np.column_stack((
         exptidA,
@@ -74,6 +69,11 @@ def Process(args, P, mylogger, myhandler, processname, exptid):
         read1d_1T_stranddurationsec, read1d_1T_meanqscore, read1d_1T_meanseqlen, read1d_1T_meanbq, read1d_1T_meangcpct, read1d_1T_meanbps,
         read1d_1C_stranddurationsec, read1d_1C_meanqscore, read1d_1C_meanseqlen, read1d_1C_meanbq, read1d_1C_meangcpct, read1d_1C_meanbps))
     np.savetxt(outpath, A, fmt='%s', delimiter='\t', newline='\n', comments='', header='\t'.join(H))
+    return 0
+
+def Process(args, P, mylogger, myhandler, processname, exptid):
+    'Aggregate per-read ont*stats.txt metrics into windows of X hours.'
+    Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
