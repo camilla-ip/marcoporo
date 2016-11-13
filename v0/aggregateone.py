@@ -36,6 +36,29 @@ def binmean(valA, timeA, binA):
     binmeans = [np.nanmean([x for x in valA[indices == i] if x != -1]) for i in range(0, len(binA))]
     return binmeans
 
+def Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid):
+  # Output file
+    outpath = os.path.join(args.outdir, args.exptid+'_aggregate_readevent.txt')
+  # Time bins, every timebucket hours between 0 and maxrunlen hours
+    binA = np.arange(0, args.maxrunlen+args.timebucket, args.timebucket)
+    readeventpath = os.path.join(args.indir, exptid+'_readeventstats.txt')
+    readevent = np.genfromtxt(readeventpath, skiprows=1, delimiter='\t', dtype=P.ontreadeventstatsH, missing_values="NA")
+    endtimehrs = readevent[:]['eventendtimesec']/60.0/60.0
+  # readevent metrics aggregated by time bins
+    readevent_meandurationsec = binmean(readevent[:]['eventdurationsec'], endtimehrs, binA)
+    readevent_meaneventcount = binmean(readevent[:]['eventcount'], endtimehrs, binA)
+    readevent_meaneventspersec = binmean(readevent[:]['eventspersec'], endtimehrs, binA)
+  # Create final 2D matrix (rows=timebuckets, columns=variables) and save to file
+    H = ['exptid', 'timehr',
+         'durationsec', 'eventcount', 'eventspersec']
+    exptidA = np.array([exptid]*len(binA))
+    A = np.column_stack((
+        exptidA,
+        binA,
+        readevent_meandurationsec, readevent_meaneventcount, readevent_meaneventspersec))
+    np.savetxt(outpath, A, fmt='%s', delimiter='\t', newline='\n', comments='', header='\t'.join(H))
+    return 0
+
 def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
   # Output file
     outpath = os.path.join(args.outdir, args.exptid+'_aggregate_read1d.txt')
@@ -101,8 +124,9 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
 
 def Process(args, P, mylogger, myhandler, processname, exptid):
     'Aggregate per-read ont*stats.txt metrics into windows of X hours.'
-    Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
-    Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
+    Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid)
+    #Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
+    #Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
