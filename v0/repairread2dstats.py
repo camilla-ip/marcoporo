@@ -84,7 +84,7 @@ def Process(in1dpath, in2dpath, out2dpath):
                 durationsec = 'NA'
                 starttimeiso = 'NA'
                 endtimeiso = 'NA'
-            newrow = L[:6] + [starttimesec, endtimesec, durationsec, starttimeiso, endtimeiso] + L[6:]
+            newrow = data2d[readid][:6] + [starttimesec, endtimesec, durationsec, starttimeiso, endtimeiso] + data2d[readid][6:]
             out_fp.write('{0}\n'.format('\t'.join(newrow)))
 
 Process(in1dpath, in2dpath, out2dpath)

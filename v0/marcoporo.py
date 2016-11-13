@@ -189,8 +189,6 @@ def main():
         help='Time window over which to aggregate metrics (in hours).')
     p04.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
-    p04.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
-        help='If False, create the job scripts but do not execute.')
     p04.set_defaults(func=run_subtool)
 
     p05 = subparsers.add_parser('aggregate', help='Aggregate value from one experiment into time buckets',

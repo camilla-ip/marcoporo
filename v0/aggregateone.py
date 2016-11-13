@@ -33,7 +33,7 @@ def Prerequisites(args, P, mylogger, myhandler, processname):
 
 def binmean(valA, timeA, binA):
     indices = np.digitize(timeA, binA)
-    binmeans = [valA[indices == i].mean() for i in range(0, len(binA))]
+    binmeans = [np.nanmean([x for x in valA[indices == i] if x != -1]) for i in range(0, len(binA))]
     return binmeans
 
 def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
@@ -43,25 +43,26 @@ def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
     binA = np.arange(0, args.maxrunlen+args.timebucket, args.timebucket)
     read1dpath = os.path.join(args.indir, exptid+'_read1dstats.txt')
     read1d = np.genfromtxt(read1dpath, skiprows=1, delimiter='\t', dtype=P.ontread1dstatsH, missing_values="NA")
-    endtimehrs = read1d[read1d[:]['readtype'] == '1T']['strandendtimesec']/60.0/60.0
+    endtimehrs1T = read1d[read1d[:]['readtype'] == '1T']['strandendtimesec']/60.0/60.0
+    endtimehrs1C = read1d[read1d[:]['readtype'] == '1C']['strandendtimesec']/60.0/60.0
   # read1d_1T metrics aggregated by time bins
-    read1d_1T_stranddurationsec = binmean(read1d[read1d[:]['readtype'] == '1T']['stranddurationsec'], endtimehrs, binA)
-    read1d_1T_meanqscore = binmean(read1d[read1d[:]['readtype'] == '1T']['meanqscore'], endtimehrs, binA)
-    read1d_1T_meanseqlen = binmean(read1d[read1d[:]['readtype'] == '1T']['seqlen'], endtimehrs, binA)
-    read1d_1T_meanbq = binmean(read1d[read1d[:]['readtype'] == '1T']['bqmean'], endtimehrs, binA)
-    read1d_1T_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1T']['gcpct'], endtimehrs, binA)
-    read1d_1T_meanbps = binmean(read1d[read1d[:]['readtype'] == '1T']['basespersecond'], endtimehrs, binA)
+    read1d_1T_stranddurationsec = binmean(read1d[read1d[:]['readtype'] == '1T']['stranddurationsec'], endtimehrs1T, binA)
+    read1d_1T_meanqscore = binmean(read1d[read1d[:]['readtype'] == '1T']['meanqscore'], endtimehrs1T, binA)
+    read1d_1T_meanseqlen = binmean(read1d[read1d[:]['readtype'] == '1T']['seqlen'], endtimehrs1T, binA)
+    read1d_1T_meanbq = binmean(read1d[read1d[:]['readtype'] == '1T']['bqmean'], endtimehrs1T, binA)
+    read1d_1T_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1T']['gcpct'], endtimehrs1T, binA)
+    read1d_1T_meanbps = binmean(read1d[read1d[:]['readtype'] == '1T']['basespersecond'], endtimehrs1T, binA)
   # read1d_1C metrics aggregated by time bins
-    read1d_1C_stranddurationsec = binmean(read1d[read1d[:]['readtype'] == '1C']['stranddurationsec'], endtimehrs, binA)
-    read1d_1C_meanqscore = binmean(read1d[read1d[:]['readtype'] == '1C']['meanqscore'], endtimehrs, binA)
-    read1d_1C_meanseqlen = binmean(read1d[read1d[:]['readtype'] == '1C']['seqlen'], endtimehrs, binA)
-    read1d_1C_meanbq = binmean(read1d[read1d[:]['readtype'] == '1C']['bqmean'], endtimehrs, binA)
-    read1d_1C_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1C']['gcpct'], endtimehrs, binA)
-    read1d_1C_meanbps = binmean(read1d[read1d[:]['readtype'] == '1C']['basespersecond'], endtimehrs, binA)
+    read1d_1C_stranddurationsec = binmean(read1d[read1d[:]['readtype'] == '1C']['stranddurationsec'], endtimehrs1C, binA)
+    read1d_1C_meanqscore = binmean(read1d[read1d[:]['readtype'] == '1C']['meanqscore'], endtimehrs1C, binA)
+    read1d_1C_meanseqlen = binmean(read1d[read1d[:]['readtype'] == '1C']['seqlen'], endtimehrs1C, binA)
+    read1d_1C_meanbq = binmean(read1d[read1d[:]['readtype'] == '1C']['bqmean'], endtimehrs1C, binA)
+    read1d_1C_meangcpct = binmean(read1d[read1d[:]['readtype'] == '1C']['gcpct'], endtimehrs1C, binA)
+    read1d_1C_meanbps = binmean(read1d[read1d[:]['readtype'] == '1C']['basespersecond'], endtimehrs1C, binA)
   # Create final 2D matrix (rows=timebuckets, columns=variables) and save to file
     H = ['exptid', 'timehr',
-         '1Tdurationsec1T', '1Tqscore', '1Tseqlen', '1Tbq', '1Tgcpct', '1Tbasesps',
-         '1Cdurationsec1C', '1Cqscore', '1Cseqlen', '1Cbq', '1Cgcpct', '1Cbasesps']
+         'durationsec1T', 'qscore1T', 'seqlen1T', 'bq1T', 'gcpct1T', 'basesps1T',
+         'durationsec1C', 'qscore1C', 'seqlen1C', 'bq1C', 'gcpct1C', 'basesps1C']
     exptidA = np.array([exptid]*len(binA))
     A = np.column_stack((
         exptidA,
@@ -71,9 +72,37 @@ def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
     np.savetxt(outpath, A, fmt='%s', delimiter='\t', newline='\n', comments='', header='\t'.join(H))
     return 0
 
+def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
+  # Output file
+    outpath = os.path.join(args.outdir, args.exptid+'_aggregate_read2d.txt')
+  # Time bins, every timebucket hours between 0 and maxrunlen hours
+    binA = np.arange(0, args.maxrunlen+args.timebucket, args.timebucket)
+    read2dpath = os.path.join(args.indir, exptid+'_read2dstats.txt')
+    read2d = np.genfromtxt(read2dpath, skiprows=1, delimiter='\t', dtype=P.ontread2dstatsH, missing_values="NA")
+    endtimehrs = read2d[:]['endtimesec']/60.0/60.0
+  # read2d metrics aggregated by time bins
+    read2d_meandurationsec = binmean(read2d[:]['durationsec'], endtimehrs, binA)
+    read2d_meanqscore = binmean(read2d[:]['meanqscore'], endtimehrs, binA)
+    read2d_meanseqlen = binmean(read2d[:]['seqlen'], endtimehrs, binA)
+    read2d_meanbq = binmean(read2d[:]['bqmean'], endtimehrs, binA)
+    read2d_meangcpct = binmean(read2d[:]['gcpct'], endtimehrs, binA)
+    read2d_meanbps = binmean(read2d[:]['basespersecond'], endtimehrs, binA)
+  # Create final 2D matrix (rows=timebuckets, columns=variables) and save to file
+    H = ['exptid', 'timehr',
+         'durationsec2D', 'qscore2D', 'seqlen2D', 'bq2D', 'gcpct2D', 'basesps2D']
+    exptidA = np.array([exptid]*len(binA))
+    A = np.column_stack((
+        exptidA,
+        binA,
+        read2d_meandurationsec, read2d_meanqscore, read2d_meanseqlen, read2d_meanbq, read2d_meangcpct,
+        read2d_meanbps))
+    np.savetxt(outpath, A, fmt='%s', delimiter='\t', newline='\n', comments='', header='\t'.join(H))
+    return 0
+
 def Process(args, P, mylogger, myhandler, processname, exptid):
     'Aggregate per-read ont*stats.txt metrics into windows of X hours.'
     Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
+    Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
