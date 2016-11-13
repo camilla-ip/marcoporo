@@ -86,6 +86,8 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import aggregateone as submodule
     elif args.command == 'aggregate':
         import aggregate as submodule
+    elif args.command == 'analyse':
+        import analyse as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
@@ -212,6 +214,24 @@ def main():
     p05.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
         help='If False, create the job scripts but do not execute.')
     p05.set_defaults(func=run_subtool)
+
+    p06 = subparsers.add_parser('analyse', help='Analyse data to produce summary table and plots',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p06.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p06.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p06.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    p06.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='Experiments and analysis parameters')
+    p06.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
+        help='Experiment runfolder (specify absolute path)')
+    p06.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
+    p06.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
+        help='If False, create the job scripts but do not execute.')
+    p06.set_defaults(func=run_subtool)
 
   # Parse the arguments
 
