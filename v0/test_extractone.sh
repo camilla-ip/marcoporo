@@ -7,7 +7,7 @@ python -m pdb \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs True \
 -fastq False \
 -stats False \
@@ -21,7 +21,7 @@ python -m pdb \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs True \
 -fastq True \
 -stats False \
@@ -35,7 +35,7 @@ python -m pdb \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs False \
 -fastq False \
 -stats False \
@@ -49,7 +49,7 @@ python -m pdb \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs True \
 -fastq False \
 -stats False \
@@ -63,7 +63,7 @@ python -m pdb \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs True \
 -fastq True \
 -stats False \
@@ -77,7 +77,7 @@ python -m pdb \
 -exptid P2-Lab6-R1-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P2-Lab6-R1-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs True \
 -fastq True \
 -stats True \
@@ -91,7 +91,7 @@ python -m pdb \
 -exptid P1b-Lab2-R2-2D \
 -indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P1b-Lab2-R2-2D \
 -instanceN 000 \
--outdir /well/bsg/microbial/marc/phase2/marcp2/data/02-extract \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract \
 -pairs True \
 -fastq True \
 -stats True \
