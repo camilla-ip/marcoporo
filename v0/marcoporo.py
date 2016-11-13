@@ -86,8 +86,8 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import aggregateone as submodule
     elif args.command == 'aggregate':
         import aggregate as submodule
-    elif args.command == 'analyse':
-        import analyse as submodule
+    elif args.command == 'analysis':
+        import analysis as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
@@ -215,7 +215,7 @@ def main():
         help='If False, create the job scripts but do not execute.')
     p05.set_defaults(func=run_subtool)
 
-    p06 = subparsers.add_parser('analyse', help='Analyse data to produce summary table and plots',
+    p06 = subparsers.add_parser('analysis', help='Compute summary table and plots',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p06.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
