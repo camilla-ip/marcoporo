@@ -225,8 +225,8 @@ def main():
         help='Analysis configuration file')
     p06.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
-    p06.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
-        help='Experiment runfolder (specify absolute path)')
+    p06.add_argument('-topdir', dest='topdir', metavar='DIR', required=True, default=None,
+        help='Top-level directory for marcoporo files (specify absolute path)')
     p06.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
     p06.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',

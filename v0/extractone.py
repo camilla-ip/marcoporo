@@ -131,10 +131,21 @@ def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fas
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
-    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
-    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+    if readnumberS == '-1':
+        return 1
+    try:
+        exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+    except:
+        return 1
+    try:
+        samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+    except:
+        return 1
   # Returned
-    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    try:
+        runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+    except:
+        return 1
     #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
     readid = Attr(attrD, 'NK',
         ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
@@ -185,6 +196,8 @@ def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
+    if readnumberS == '-1':
+        return 1
     exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
     samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
   # Returned
@@ -228,72 +241,95 @@ def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
     fpD['readeventstats'].flush()
     return 0
 
+def Print_read1dblank(P, exptid, batchid, fpD):
+    rowNP = np.array(
+        (exptid, batchid, 'NA', 'NA', 'NA',
+        'NA', 'NA', -1, -1, -1,
+        -1, -1.0, -1.0, -1.0, 'NA',
+        'NA', -1.0, -1.0, -1, -1,
+        -1.0, -1.0, -1.0, -1.0, '',
+        ''),
+        dtype=P.ontread1dstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
+    fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['read1dstats'].flush()
+    return 0
+
 def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
   # Intermediate
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
-        ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
+        ['Analyses/EventDetection_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
-    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
-    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
-    hpsinstanceN = instanceN
-    bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]]) if fastqD[readtype] is not None else None
-    bc2dinstanceN = instanceN
-  # Returned
-    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
-    #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
-    readid = Attr(attrD, '-1',
-        ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
-         'Analyses/EventDetection_{0}/Reads/Read_{1}/read_id'.format(instanceN, readnumberS)])
-    bc1dinstanceN = instanceN
-    numevents = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_events'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/num_events'.format(bc2dinstanceN)]))
-    numskips = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_skips'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/num_skips'.format(bc2dinstanceN)]))
-    numstays = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_stays'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/num_stays'.format(bc2dinstanceN)]))
-    numcalled = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/called_events'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/called_events'.format(bc2dinstanceN)]))
-    strandstarttimesec = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/start_time'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/BaseCalled_template/Events/start_time'.format(bc2dinstanceN)]))
-    stranddurationsec = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/BaseCalled_template/Events/duration'.format(bc2dinstanceN)]))
-    strandendtimesec = (strandstarttimesec + stranddurationsec) if strandstarttimesec != -1 and stranddurationsec != -1 else -1 
-    #strandstarttimesec = exp_start_time + strandstarttime / samplingrate
-    #strandendtimesec = exp_start_time + strandstarttime / samplingrate + strandduration / samplingrate
-    #strandstarttimesec = strandstarttime / samplingrate
-    #strandendtimesec = strandstarttimesec + strandduration / samplingrate
-    #stranddurationsec = strandduration / samplingrate
-    if strandstarttimesec != '-1':
-        strandstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandstarttimesec))
-        strandendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandendtimesec))
-    else:
-        strandstarttimeiso = 'NA'
-        strandendtimeiso = 'NA'
-    meanqscore = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/mean_qscore'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/mean_qscore'.format(bc1dinstanceN)]))
-    strandscore = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/strand_score'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/strand_score'.format(bc1dinstanceN)]))
+    if readnumberS == '-1':
+        Print_read1dblank(P, exptid, batchid, fpD)
+        return None
     try:
-        seqlen = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/sequence_length'.format(bc1dinstanceN)][1])
+        exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+        samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+        hpsinstanceN = instanceN
+        bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]]) if fastqD[readtype] is not None else None
+        bc2dinstanceN = instanceN
+      # Returned
+        runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+        #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
+        readid = Attr(attrD, '-1',
+            ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
+             'Analyses/EventDetection_{0}/Reads/Read_{1}/read_id'.format(instanceN, readnumberS)])
+        bc1dinstanceN = instanceN
+        numevents = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_events'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/num_events'.format(bc2dinstanceN)]))
+        numskips = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_skips'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/num_skips'.format(bc2dinstanceN)]))
+        numstays = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/num_stays'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/num_stays'.format(bc2dinstanceN)]))
+        numcalled = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/called_events'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/called_events'.format(bc2dinstanceN)]))
+        strandstarttimesec = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/start_time'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/BaseCalled_template/Events/start_time'.format(bc2dinstanceN)]))
+        stranddurationsec = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/BaseCalled_template/Events/duration'.format(bc2dinstanceN)]))
+        strandendtimesec = (strandstarttimesec + stranddurationsec) if strandstarttimesec != -1 and stranddurationsec != -1 else -1 
+        #strandstarttimesec = exp_start_time + strandstarttime / samplingrate
+        #strandendtimesec = exp_start_time + strandstarttime / samplingrate + strandduration / samplingrate
+        #strandstarttimesec = strandstarttime / samplingrate
+        #strandendtimesec = strandstarttimesec + strandduration / samplingrate
+        #stranddurationsec = strandduration / samplingrate
+        if strandstarttimesec != '-1':
+            strandstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandstarttimesec))
+            strandendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandendtimesec))
+        else:
+            strandstarttimeiso = 'NA'
+            strandendtimeiso = 'NA'
+        meanqscore = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/mean_qscore'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/mean_qscore'.format(bc1dinstanceN)]))
+        strandscore = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/strand_score'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_template/strand_score'.format(bc1dinstanceN)]))
+        if attrD.has_key('Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/sequence_length'.format(bc1dinstanceN)):
+            seqlen = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_template/sequence_length'.format(bc1dinstanceN)][1])
+        else:
+            seqlen = len(fastqD[readtype][1]) if fastqD[readtype] is not None else -1
+        bqlen = len(fastqD[readtype][3]) if fastqD[readtype] is not None else 0
+        bqmean = np.mean(bqnumA) if bqnumA is not None else -1
+        bqmedian = np.median(bqnumA) if bqnumA is not None else -1
+        gcpct = round(GC(fastqD[readtype][1]), 1) if fastqD[readtype] is not None else -1
+        basespersecond = seqlen / stranddurationsec if stranddurationsec != -1 else -1
+        comment = ''
+        dbuserid = ''
     except:
-        seqlen = len(fastqD[readtype][1]) if fastqD[readtype] is not None else -1
-    bqlen = len(fastqD[readtype][3]) if fastqD[readtype] is not None else 0
-    bqmean = np.mean(bqnumA) if bqnumA is not None else -1
-    bqmedian = np.median(bqnumA) if bqnumA is not None else -1
-    gcpct = round(GC(fastqD[readtype][1]), 1) if fastqD[readtype] is not None else -1
-    basespersecond = seqlen / stranddurationsec if stranddurationsec != -1 else -1
-    comment = ''
-    dbuserid = ''
+        Print_read1dblank(P, exptid, batchid, fpD)
+        return None
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc1dinstanceN,
         readtype, returnstatus, numevents, numskips, numstays,
@@ -306,75 +342,83 @@ def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
     fpD['read1dstats'].flush()
-    return 0
+    return rowL
 
 def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
   # Intermediate
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD,  '-1',
-        ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
+        ['Analyses/EventDetection_{0}/Configuration/general/read_id'.format(instanceN),
+         'Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
-    exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
-    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
-    hpsinstanceN = instanceN
-    bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]]) if fastqD[readtype] is not None else None
-    bc2dinstanceN = instanceN
-  # Returned
-    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
-    #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
-    readid = Attr(attrD, '-1',
-        ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
-         'Analyses/EventDetection_{0}/Reads/Read_{1}/read_id'.format(instanceN, readnumberS)])
-    bc1dinstanceN = instanceN
-    #numevents = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_events'.format(bc1dinstanceN)][1])
-    numevents = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_events'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/num_events'.format(bc2dinstanceN)]))
-    numskips = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_skips'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/num_skips'.format(bc2dinstanceN)]))
-    numstays = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_stays'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/num_stays'.format(bc2dinstanceN)]))
-    numcalled = int(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/called_events'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/called_events'.format(bc2dinstanceN)]))
-    strandstarttimesec = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/start_time'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/BaseCalled_complement/Events/start_time'.format(bc2dinstanceN)]))
-    stranddurationsec = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/BaseCalled_complement/Events/duration'.format(bc2dinstanceN)]))
-    strandendtimesec = (strandstarttimesec + stranddurationsec) if strandstarttimesec != -1 and stranddurationsec != -1 else -1 
-    #strandstarttimesec = exp_start_time + strandstarttime / samplingrate
-    #strandendtimesec = exp_start_time + strandstarttime / samplingrate + strandduration / samplingrate
-    #strandstarttimesec = strandstarttime / samplingrate
-    #strandendtimesec = strandstarttimesec + strandduration / samplingrate
-    #stranddurationsec = strandduration / samplingrate
-    if strandstarttimesec != -1:
-        strandstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandstarttimesec))
-        strandendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandendtimesec))
-    else:
-        strandstarttimeiso = 'NA'
-        strandendtimeiso = 'NA'
-    meanqscore = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/mean_qscore'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/mean_qscore'.format(bc1dinstanceN)]))
-    strandscore = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/strand_score'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/strand_score'.format(bc1dinstanceN)]))
+    if readnumberS == '-1':
+        Print_read1dblank(P, exptid, batchid, fpD)
+        return None
     try:
-        seqlen = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/sequence_length'.format(bc1dinstanceN)][1])
+        exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+        samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+        hpsinstanceN = instanceN
+        bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]]) if fastqD[readtype] is not None else None
+        bc2dinstanceN = instanceN
+      # Returned
+        runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+        #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
+        readid = Attr(attrD, '-1',
+            ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
+             'Analyses/EventDetection_{0}/Reads/Read_{1}/read_id'.format(instanceN, readnumberS)])
+        bc1dinstanceN = instanceN
+        #numevents = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_events'.format(bc1dinstanceN)][1])
+        numevents = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_events'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/num_events'.format(bc2dinstanceN)]))
+        numskips = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_skips'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/num_skips'.format(bc2dinstanceN)]))
+        numstays = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/num_stays'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/num_stays'.format(bc2dinstanceN)]))
+        numcalled = int(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/called_events'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/called_events'.format(bc2dinstanceN)]))
+        strandstarttimesec = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/start_time'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/BaseCalled_complement/Events/start_time'.format(bc2dinstanceN)]))
+        stranddurationsec = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/BaseCalled_complement/Events/duration'.format(bc2dinstanceN)]))
+        strandendtimesec = (strandstarttimesec + stranddurationsec) if strandstarttimesec != -1 and stranddurationsec != -1 else -1 
+        #strandstarttimesec = exp_start_time + strandstarttime / samplingrate
+        #strandendtimesec = exp_start_time + strandstarttime / samplingrate + strandduration / samplingrate
+        #strandstarttimesec = strandstarttime / samplingrate
+        #strandendtimesec = strandstarttimesec + strandduration / samplingrate
+        #stranddurationsec = strandduration / samplingrate
+        if strandstarttimesec != -1:
+            strandstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandstarttimesec))
+            strandendtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + strandendtimesec))
+        else:
+            strandstarttimeiso = 'NA'
+            strandendtimeiso = 'NA'
+        meanqscore = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/mean_qscore'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/mean_qscore'.format(bc1dinstanceN)]))
+        strandscore = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/strand_score'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/Summary/basecall_1d_complement/strand_score'.format(bc1dinstanceN)]))
+        if attrD.has_key('Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/sequence_length'.format(bc1dinstanceN)):
+            seqlen = int(attrD['Analyses/Basecall_1D_{0}/Summary/basecall_1d_complement/sequence_length'.format(bc1dinstanceN)][1])
+        else:
+            seqlen = len(fastqD[readtype][1]) if fastqD[readtype] is not None else -1
+        bqlen = len(fastqD[readtype][3]) if fastqD[readtype] is not None else -1
+        bqmean = np.mean(bqnumA) if bqnumA is not None else -1
+        bqmedian = np.median(bqnumA) if bqnumA is not None else -1
+        gcpct = round(GC(fastqD[readtype][1]), 1) if fastqD[readtype] is not None else -1
+        basespersecond = (seqlen / stranddurationsec) if stranddurationsec != -1 else -1
+        comment = ''
+        dbuserid = ''
     except:
-        seqlen = len(fastqD[readtype][1]) if fastqD[readtype] is not None else -1
-    bqlen = len(fastqD[readtype][3]) if fastqD[readtype] is not None else -1
-    bqmean = np.mean(bqnumA) if bqnumA is not None else -1
-    bqmedian = np.median(bqnumA) if bqnumA is not None else -1
-    gcpct = round(GC(fastqD[readtype][1]), 1) if fastqD[readtype] is not None else -1
-    basespersecond = (seqlen / stranddurationsec) if stranddurationsec != -1 else -1
-    comment = ''
-    dbuserid = ''
+        Print_read1dblank(P, exptid, batchid, fpD)
+        return None
 #    rowNP = np.array(
 #        (exptid, batchid, runid, readid, bc1dinstanceN,
 #        readtype, returnstatus, numevents, numskips, numstays,
@@ -395,16 +439,29 @@ def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['read1dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
     fpD['read1dstats'].flush()
-    return 0
+    return rowL
 
 def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
     returnstatus = Attr(attrD, 'NR',
         ['Analyses/Basecall_1D_{0}/Summary/return_status'.format(instanceN)])
-    Print_ontread1tstats(P, exptid, batchid, instanceN, '1T', attrD, fastqD, returnstatus, fpD)
-    Print_ontread1cstats(P, exptid, batchid, instanceN, '1C', attrD, fastqD, returnstatus, fpD)
+    read1tstats = Print_ontread1tstats(P, exptid, batchid, instanceN, '1T', attrD, fastqD, returnstatus, fpD)
+    read1cstats = Print_ontread1cstats(P, exptid, batchid, instanceN, '1C', attrD, fastqD, returnstatus, fpD)
+    return read1tstats, read1cstats
+
+def Print_read2dblank(P, exptid, batchid, fpD):
+    rowNP = np.array(
+        (exptid, batchid, 'NA', 'NA', 'NA',
+        'NA', -1.0, -1.0, -1.0, '-1',
+        '-1', -1.0, -1, -1, -1.0,
+        -1.0, -1.0, -1.0, '', ''),
+        dtype=P.ontread2dstatsH)
+    rowL = list(np.atleast_1d(rowNP).tolist()[0])
+    rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
+    fpD['read2dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
+    fpD['read2dstats'].flush()
     return 0
 
-def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
+def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD, read1tstats, read1cstats):
   # Intermediate
     readtype = '2D'
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
@@ -412,52 +469,91 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
         ['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Basecall_2D_{0}/Configuration/general/read_id'.format(instanceN),
          'Analyses/Segment_Linear_{0}/Configuration/general/read_id'.format(instanceN)])
-    bc1dinstanceN = instanceN
-    samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
-    tempduration = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN)]))
-    compduration = float(Attr(attrD, '-1',
-        ['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN),
-         'Analyses/Basecall_2D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN)]))
-    tempdurationsec = tempduration
-    compdurationsec = compduration
-    meandurationsec = ((tempdurationsec + compdurationsec) / 2.0) if tempdurationsec != -1 and compdurationsec != -1 else -1
-    bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]]) if fastqD[readtype] is not None else None
-  # Returned
-    runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
-    #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
-    readid = Attr(attrD, '-1',
-        ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
-         'Analyses/EventDetection_{0}/Reads/Read_{1}/read_id'.format(instanceN, readnumberS)])
-    bc2dinstanceN = instanceN
-    returnstatus = Attr(attrD, 'NR',
-        ['Analyses/Basecall_2D_{0}/Summary/return_status'.format(bc2dinstanceN)])
+    if readnumberS == '-1':
+        Print_read2dblank(P, exptid, batchid, fpD)
+        return None
     try:
-        meanqscore = float(attrD['Analyses/Basecall_2D_{0}/Summary/basecall_2d/mean_qscore'.format(bc2dinstanceN)][1])
+        bc1dinstanceN = instanceN
+        samplingrate = float(attrD['UniqueGlobalKey/channel_id/sampling_rate'][1])
+        exp_start_time = float(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
+        tempduration = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/BaseCalled_template/Events/duration'.format(bc1dinstanceN)]))
+        compduration = float(Attr(attrD, '-1',
+            ['Analyses/Basecall_1D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN),
+             'Analyses/Basecall_2D_{0}/BaseCalled_complement/Events/duration'.format(bc1dinstanceN)]))
+        #tempdurationsec = tempduration
+        #compdurationsec = compduration
+        #meandurationsec = ((tempdurationsec + compdurationsec) / 2.0) if tempdurationsec != -1 and compdurationsec != -1 else -1
+        if read1tstats is not None and read1cstats is not None:
+            tempdurationsec = read1tstats[13]
+            compdurationsec = read1cstats[13]
+            meandurationsec = ((tempdurationsec + compdurationsec) / 2.0) \
+                if (tempdurationsec != -1 and compdurationsec != -1 and tempdurationsec != 'NA' and compdurationsec != 'NA') else -1
+        else:
+            meandurationsec = -1
+        bqnumA = np.array([ord(x)-33 for x in fastqD[readtype][3]]) if fastqD[readtype] is not None else None
+      # Returned
+        runid = attrD['UniqueGlobalKey/tracking_id/run_id'][1]
+        #readid = attrD['Raw/Reads/Read_{0}/read_id'.format(readnumberS)][1]
+        readid = Attr(attrD, '-1',
+            ['Raw/Reads/Read_{0}/read_id'.format(readnumberS),
+             'Analyses/EventDetection_{0}/Reads/Read_{1}/read_id'.format(instanceN, readnumberS)])
+        bc2dinstanceN = instanceN
+        returnstatus = Attr(attrD, 'NR',
+            ['Analyses/Basecall_2D_{0}/Summary/return_status'.format(bc2dinstanceN)])
+        #starttimesec = -1
+        #endtimesec = -1
+        #durationsec = -1
+        #starttimeiso = 'NA'
+        #endtimeiso = 'NA'
+        if read1tstats is not None and read1tstats[11] != -1 and read1tstats[11] != 'NA':
+            starttimesec = read1tstats[11]
+        else:
+            starttimesec = -1
+        if read1cstats is not None and read1cstats[12] != -1 and read1cstats[12] != 'NA':
+            endtimesec = read1cstats[12]
+        elif read1tstats is not None and read1tstats[12] != -1 and read1tstats[12] != 'NA':
+            endtimesec = read1tstats[12]
+        else:
+            endtimesec = -1
+        durationsec = (endtimesec - starttimesec) \
+            if (starttimesec != -1 and endtimesec != -1 and starttimesec != 'NA' and endtimesec != 'NA') else -1
+        if starttimesec != -1 and starttimesec != '-1':
+            starttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + starttimesec))
+            endtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + endtimesec))
+        else:
+            starttimeiso = 'NA'
+            endtimeiso = 'NA'
+        try:
+            meanqscore = float(attrD['Analyses/Basecall_2D_{0}/Summary/basecall_2d/mean_qscore'.format(bc2dinstanceN)][1])
+        except:
+            meanqscore = -1
+        try:
+            seqlen = int(attrD['Analyses/Basecall_2D_{0}/Summary/basecall_2d/sequence_length'.format(bc2dinstanceN)][1])
+        except:
+            seqlen = len(fastqD[readtype][1]) if fastqD[readtype] is not None else -1
+        bqlen = len(fastqD[readtype][3]) if fastqD[readtype] is not None else -1
+        bqmean = np.mean(bqnumA) if bqnumA is not None else -1
+        bqmedian = np.median(bqnumA) if bqnumA is not None else -1
+        gcpct = round(GC(fastqD[readtype][1]), 1) if fastqD[readtype] is not None else -1
+        basespersecond = (seqlen / meandurationsec) if meandurationsec != -1 else -1
+        comment = ''
+        dbuserid = ''
     except:
-        meanqscore = -1
-    try:
-        seqlen = int(attrD['Analyses/Basecall_2D_{0}/Summary/basecall_2d/sequence_length'.format(bc2dinstanceN)][1])
-    except:
-        seqlen = len(fastqD[readtype][1]) if fastqD[readtype] is not None else -1
-    bqlen = len(fastqD[readtype][3]) if fastqD[readtype] is not None else -1
-    bqmean = np.mean(bqnumA) if bqnumA is not None else -1
-    bqmedian = np.median(bqnumA) if bqnumA is not None else -1
-    gcpct = round(GC(fastqD[readtype][1]), 1) if fastqD[readtype] is not None else -1
-    basespersecond = (seqlen / meandurationsec) if meandurationsec != -1 else -1
-    comment = ''
-    dbuserid = ''
+        Print_read2dblank(P, exptid, batchid, fpD)
+        return 1
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc2dinstanceN,
-        returnstatus, meanqscore, seqlen, bqlen, bqmean,
+        returnstatus, starttimesec, endtimesec, durationsec, starttimeiso,
+        endtimeiso, meanqscore, seqlen, bqlen, bqmean,
         bqmedian, gcpct, basespersecond, comment, dbuserid),
         dtype=P.ontread2dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
     fpD['read2dstats'].write('{0}\n'.format('\t'.join([str(x) for x in rowL])))
     fpD['read2dstats'].flush()
-    return 0
+    return rowL
 
 def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD, fast5file):
     'Print records from current fast5 file to ont[expt|read]stats, ontread[event|1d|2d]stats files.'
@@ -467,15 +563,13 @@ def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fast
         Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD)
     Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fast5file)
     Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD)
-    Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD)
-    Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD)
+    read1tstats, read1cstats = Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD)
+    read2dstats = Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD, read1tstats, read1cstats)
     return 0
 
 def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):
     'Open the FAST5 file, extract all requested information, write it to the file pointer.'
-    mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1}\n'.format(exptid, readclass))
-    if fast5path.endswith('MinION2_20160727_FNFAD22137_MN16454_sequencing_run_Chip92_MARC_R9_2D_UBC_69955_ch100_read125_strand.fast5'):
-        pass
+    mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1} {2}\n'.format(exptid, readclass, fast5path))
     attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, instanceN, True, True, args.fastq, True, args.fastqheaderformat)
     if not len(attrD.keys()):
         return None
@@ -508,6 +602,7 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
     fast5L = []
+    # CI 2016-11-25: Removed this for checking P2-Lab6-R1-2D debugging
     fast5L += [(passdir, x, 'pass') for x in os.listdir(passdir) if x.endswith('.fast5')]
     fast5L += [(faildir, x, 'fail') for x in os.listdir(faildir) if x.endswith('.fast5')]
     maxfiles = min(args.samplesize, len(fast5L))

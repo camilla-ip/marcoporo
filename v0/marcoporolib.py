@@ -157,7 +157,27 @@ class marcoporolib(object):
             ('batchid', 'S20'),
             ('runid', 'S200'),
             ('readid', 'S200'),
+            ('eventinstanceN', 'S4'),	# Add readclass after this field
+            ('returnstatus', 'S30'),
+            ('eventstarttime', np.float),
+            ('eventduration', np.float),
+            ('eventstarttimesec', np.float),
+            ('eventendtimesec', np.float),
+            ('eventdurationsec', np.float),
+            ('eventstarttimeiso', 'S30'),
+            ('eventendtimeiso', 'S30'),
+            ('eventcount', np.int),
+            ('eventspersec', np.float),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
+        self.ontreadeventstatsbH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
             ('eventinstanceN', 'S4'),
+            ('readclass', 'S8'),
             ('returnstatus', 'S30'),
             ('eventstarttime', np.float),
             ('eventduration', np.float),
@@ -178,7 +198,7 @@ class marcoporolib(object):
             ('readid', 'S200'),
             ('bc1dinstanceN', 'S4'),
             ('readtype', 'S2'),
-            ('returnstatus', 'S30'),
+            ('returnstatus', 'S30'),	# Add readclass after this field
             ('numevents', np.int),
             ('numskip', np.int),
             ('numstays', np.int),
@@ -201,13 +221,65 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
+        self.ontread1dstatsbH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('bc1dinstanceN', 'S4'),
+            ('readtype', 'S2'),
+            ('returnstatus', 'S30'),
+            ('readclass', 'S8'),
+            ('numevents', np.int),
+            ('numskip', np.int),
+            ('numstays', np.int),
+            ('numcalled', np.int),
+            ('strandstarttimesec', np.float),
+            ('strandendtimesec', np.float),
+            ('stranddurationsec', np.float),
+            ('strandstarttimeiso', 'S30'),
+            ('strandendtimeiso', 'S30'),
+            ('meanqscore', np.float),
+            ('strandscore', np.float),
+            ('seqlen', np.int),
+            ('bqlen', np.int),
+            ('bqmean', np.float),
+            ('bqmedian', np.float),
+            ('gcpct', np.float),
+            ('basespersecond', np.float),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
         self.ontread2dstatsH = [
             ('exptid', 'S20'),
             ('batchid', 'S20'),
             ('runid', 'S200'),
             ('readid', 'S200'),
             ('bc2instanceN', 'S4'),
+            ('returnstatus', 'S30'),	# Add readclass after this field
+            ('starttimesec', np.float),
+            ('endtimesec', np.float),
+            ('durationsec', np.float),
+            ('starttimeiso', 'S30'),
+            ('endtimeiso', 'S30'),
+            ('meanqscore', np.float),
+            ('seqlen', np.int),
+            ('bqlen', np.int),
+            ('bqmean', np.float),
+            ('bqmedian', np.float),
+            ('gcpct', np.float),
+            ('basespersecond', np.float),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
+        self.ontread2dstatsbH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('bc2instanceN', 'S4'),
             ('returnstatus', 'S30'),
+            ('readclass', 'S8'),
             ('starttimesec', np.float),
             ('endtimesec', np.float),
             ('durationsec', np.float),
@@ -325,7 +397,7 @@ class marcoporolib(object):
       # Initialise
         #hdf = h5py.File(fast5path, 'r')
         list_of_names = []
-        hdf.visit(list_of_names.append)
+        hdf.visit(list_of_names.append) # CI 2016-11-26: This line can segmentation fault (programme return code 139) if the hdf5 file contains errors, such as an ill-formatted EventDetection_000 group - would have to trap signals, but don't know how to do that, so for now, checking that
       # Create a dictionary that maps all the fields with a run number
       # e.g., runnumberD['Basecall_1D_NNN'] = ['Basecall_1D_000', '000']
         runnumberD = {}
@@ -566,6 +638,12 @@ class marcoporolib(object):
             result = [x[0] for x in self.ontread1dstatsH[:-2]]
         elif tablename == 'ontread2dstats':
             result = [x[0] for x in self.ontread2dstatsH[:-2]]
+        elif tablename == 'ontreadeventstatsb':
+            result = [x[0] for x in self.ontreadeventstatsbH[:-2]]
+        elif tablename == 'ontread1dstatsb':
+            result = [x[0] for x in self.ontread1dstatsbH[:-2]]
+        elif tablename == 'ontread2dstatsb':
+            result = [x[0] for x in self.ontread2dstatsbH[:-2]]
         return result
 
     # conf
