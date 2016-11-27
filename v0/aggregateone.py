@@ -125,8 +125,8 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
 def Process(args, P, mylogger, myhandler, processname, exptid):
     'Aggregate per-read ont*stats.txt metrics into windows of X hours.'
     Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid)
-    #Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
-    #Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
+    Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
+    Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
