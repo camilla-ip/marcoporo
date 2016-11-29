@@ -602,7 +602,6 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
     fast5L = []
-    # CI 2016-11-25: Removed this for checking P2-Lab6-R1-2D debugging
     fast5L += [(passdir, x, 'pass') for x in os.listdir(passdir) if x.endswith('.fast5')]
     fast5L += [(faildir, x, 'fail') for x in os.listdir(faildir) if x.endswith('.fast5')]
     maxfiles = min(args.samplesize, len(fast5L))
