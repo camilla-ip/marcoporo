@@ -189,7 +189,7 @@ def Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fas
     fpD['readstats'].flush()
     return 0
 
-def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
+def Print_ontreadeventstats(P, exptid, batchid, readclass, instanceN, attrD, fpD):
   # Intermediate
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
@@ -231,9 +231,9 @@ def Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD):
     dbuserid = ''
     rowNP = np.array(
         (exptid, batchid, runid, readid, eventinstanceN,
-        returnstatus, eventstarttime, eventduration, eventstarttimesec, eventendtimesec,
-        eventdurationsec, eventstarttimeiso, eventendtimeiso, eventcount, eventspersec,
-        comment, dbuserid),
+        readclass, returnstatus, eventstarttime, eventduration, eventstarttimesec,
+        eventendtimesec, eventdurationsec, eventstarttimeiso, eventendtimeiso, eventcount,
+        eventspersec, comment, dbuserid),
         dtype=P.ontreadeventstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
@@ -256,7 +256,7 @@ def Print_read1dblank(P, exptid, batchid, fpD):
     fpD['read1dstats'].flush()
     return 0
 
-def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
+def Print_ontread1tstats(P, exptid, batchid, readclass, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
   # Intermediate
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD, '-1',
@@ -332,11 +332,11 @@ def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
         return None
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc1dinstanceN,
-        readtype, returnstatus, numevents, numskips, numstays,
-        numcalled, strandstarttimesec, strandendtimesec, stranddurationsec, strandstarttimeiso,
-        strandendtimeiso, meanqscore, strandscore, seqlen, bqlen,
-        bqmean, bqmedian, gcpct, basespersecond, comment,
-        dbuserid),
+        readtype, readclass, returnstatus, numevents, numskips,
+        numstays, numcalled, strandstarttimesec, strandendtimesec, stranddurationsec,
+        strandstarttimeiso, strandendtimeiso, meanqscore, strandscore, seqlen,
+        bqlen, bqmean, bqmedian, gcpct, basespersecond,
+        comment, dbuserid),
         dtype=P.ontread1dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
@@ -344,7 +344,7 @@ def Print_ontread1tstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     fpD['read1dstats'].flush()
     return rowL
 
-def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
+def Print_ontread1cstats(P, exptid, batchid, readclass, instanceN, readtype, attrD, fastqD, returnstatus, fpD):
   # Intermediate
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
     readnumberS = Attr(attrD,  '-1',
@@ -429,11 +429,11 @@ def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
 #        dtype=P.ontread1dstatsH)
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc1dinstanceN,
-        readtype, returnstatus, numevents, numskips, numstays,
-        numcalled, strandstarttimesec, strandendtimesec, stranddurationsec, strandstarttimeiso,
-        strandendtimeiso, meanqscore, strandscore, seqlen, bqlen,
-        bqmean, bqmedian, gcpct, basespersecond, comment,
-        dbuserid),
+        readtype, readclass, returnstatus, numevents, numskips,
+        numstays, numcalled, strandstarttimesec, strandendtimesec, stranddurationsec,
+        strandstarttimeiso, strandendtimeiso, meanqscore, strandscore, seqlen,
+        bqlen, bqmean, bqmedian, gcpct, basespersecond,
+        comment, dbuserid),
         dtype=P.ontread1dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
@@ -441,11 +441,11 @@ def Print_ontread1cstats(P, exptid, batchid, instanceN, readtype, attrD, fastqD,
     fpD['read1dstats'].flush()
     return rowL
 
-def Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD):
+def Print_ontread1dstats(P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD):
     returnstatus = Attr(attrD, 'NR',
         ['Analyses/Basecall_1D_{0}/Summary/return_status'.format(instanceN)])
-    read1tstats = Print_ontread1tstats(P, exptid, batchid, instanceN, '1T', attrD, fastqD, returnstatus, fpD)
-    read1cstats = Print_ontread1cstats(P, exptid, batchid, instanceN, '1C', attrD, fastqD, returnstatus, fpD)
+    read1tstats = Print_ontread1tstats(P, exptid, batchid, readclass, instanceN, '1T', attrD, fastqD, returnstatus, fpD)
+    read1cstats = Print_ontread1cstats(P, exptid, batchid, readclass, instanceN, '1C', attrD, fastqD, returnstatus, fpD)
     return read1tstats, read1cstats
 
 def Print_read2dblank(P, exptid, batchid, fpD):
@@ -461,7 +461,7 @@ def Print_read2dblank(P, exptid, batchid, fpD):
     fpD['read2dstats'].flush()
     return 0
 
-def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD, read1tstats, read1cstats):
+def Print_ontread2dstats(P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD, read1tstats, read1cstats):
   # Intermediate
     readtype = '2D'
     #readnumberS = attrD['Analyses/Hairpin_Split_{0}/Configuration/general/read_id'.format(instanceN)][1]
@@ -545,9 +545,10 @@ def Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD, read
         return 1
     rowNP = np.array(
         (exptid, batchid, runid, readid, bc2dinstanceN,
-        returnstatus, starttimesec, endtimesec, durationsec, starttimeiso,
-        endtimeiso, meanqscore, seqlen, bqlen, bqmean,
-        bqmedian, gcpct, basespersecond, comment, dbuserid),
+        returnstatus, readclass, starttimesec, endtimesec, durationsec,
+        starttimeiso, endtimeiso, meanqscore, seqlen, bqlen,
+        bqmean, bqmedian, gcpct, basespersecond, comment,
+        dbuserid),
         dtype=P.ontread2dstatsH)
     rowL = list(np.atleast_1d(rowNP).tolist()[0])
     rowL = [x if x != -1 and x != '-1' and x != '-1.0' else 'NA' for x in rowL]
@@ -562,9 +563,9 @@ def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fast
     if filecnt == 1:
         Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD)
     Print_ontreadstats(P, exptid, batchid, readclass, instanceN, attrD, fpD, fast5file)
-    Print_ontreadeventstats(P, exptid, batchid, instanceN, attrD, fpD)
-    read1tstats, read1cstats = Print_ontread1dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD)
-    read2dstats = Print_ontread2dstats(P, exptid, batchid, instanceN, attrD, fastqD, fpD, read1tstats, read1cstats)
+    Print_ontreadeventstats(P, exptid, batchid, readclass, instanceN, attrD, fpD)
+    read1tstats, read1cstats = Print_ontread1dstats(P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD)
+    read2dstats = Print_ontread2dstats(P, exptid, batchid, readclass, instanceN, attrD, fastqD, fpD, read1tstats, read1cstats)
     return 0
 
 def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):

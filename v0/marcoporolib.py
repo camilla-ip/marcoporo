@@ -158,25 +158,6 @@ class marcoporolib(object):
             ('runid', 'S200'),
             ('readid', 'S200'),
             ('eventinstanceN', 'S4'),	# Add readclass after this field
-            ('returnstatus', 'S30'),
-            ('eventstarttime', np.float),
-            ('eventduration', np.float),
-            ('eventstarttimesec', np.float),
-            ('eventendtimesec', np.float),
-            ('eventdurationsec', np.float),
-            ('eventstarttimeiso', 'S30'),
-            ('eventendtimeiso', 'S30'),
-            ('eventcount', np.int),
-            ('eventspersec', np.float),
-            ('comment', 'S200'),
-            ('dbuserid', 'S20')
-        ]
-        self.ontreadeventstatsbH = [
-            ('exptid', 'S20'),
-            ('batchid', 'S20'),
-            ('runid', 'S200'),
-            ('readid', 'S200'),
-            ('eventinstanceN', 'S4'),
             ('readclass', 'S8'),
             ('returnstatus', 'S30'),
             ('eventstarttime', np.float),
@@ -191,7 +172,27 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
-        self.ontread1dstatsH = [
+        self.ontreadeventstatsoldH = [
+            ('exptid', 'S20'),
+            ('batchid', 'S20'),
+            ('runid', 'S200'),
+            ('readid', 'S200'),
+            ('eventinstanceN', 'S4'),
+            ('readclass', 'S8'),	# NEW
+            ('returnstatus', 'S30'),
+            ('eventstarttime', np.float),
+            ('eventduration', np.float),
+            ('eventstarttimesec', np.float),
+            ('eventendtimesec', np.float),
+            ('eventdurationsec', np.float),
+            ('eventstarttimeiso', 'S30'),
+            ('eventendtimeiso', 'S30'),
+            ('eventcount', np.int),
+            ('eventspersec', np.float),
+            ('comment', 'S200'),
+            ('dbuserid', 'S20')
+        ]
+        self.ontread1dstatsoldH = [
             ('exptid', 'S20'),
             ('batchid', 'S20'),
             ('runid', 'S200'),
@@ -221,7 +222,7 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
-        self.ontread1dstatsbH = [
+        self.ontread1dstatsH = [
             ('exptid', 'S20'),
             ('batchid', 'S20'),
             ('runid', 'S200'),
@@ -229,7 +230,7 @@ class marcoporolib(object):
             ('bc1dinstanceN', 'S4'),
             ('readtype', 'S2'),
             ('returnstatus', 'S30'),
-            ('readclass', 'S8'),
+            ('readclass', 'S8'),	# NEW
             ('numevents', np.int),
             ('numskip', np.int),
             ('numstays', np.int),
@@ -250,7 +251,7 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
-        self.ontread2dstatsH = [
+        self.ontread2dstatsoldH = [
             ('exptid', 'S20'),
             ('batchid', 'S20'),
             ('runid', 'S200'),
@@ -272,7 +273,7 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
-        self.ontread2dstatsbH = [
+        self.ontread2dstatsH = [
             ('exptid', 'S20'),
             ('batchid', 'S20'),
             ('runid', 'S200'),
