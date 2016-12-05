@@ -33,10 +33,11 @@ def Prerequisites(args, P, mylogger, myhandler, processname):
 
 def binmean(valA, timeA, binA):
     if not len(valA) and not len(timeA):
-        return [0.0] * len(binA)
+        return [0.0] * len(binA), [0.0] * len(binA)
     indexL = np.digitize(timeA, binA)
     binmeans = [np.nanmean([x for x in valA[indexL == i] if x != -1]) for i in range(0, len(binA))]
-    return binmeans
+    bincount = [len([x for x in valA[indexL == i] if x != -1]) for i in range(0, len(binA))]
+    return binmeans, bincount
 
 def Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid):
   # Output file
@@ -47,9 +48,9 @@ def Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid):
     readevent = np.genfromtxt(readeventpath, skiprows=1, delimiter='\t', dtype=P.ontreadeventstatsH, missing_values="NA")
     endtimehrs = readevent[:]['eventendtimesec']/60.0/60.0
   # readevent metrics aggregated by time bins
-    readevent_meandurationsec = binmean(readevent[:]['eventdurationsec'], endtimehrs, timeh)
-    readevent_meaneventcount = binmean(readevent[:]['eventcount'], endtimehrs, timeh)
-    readevent_meaneventspersec = binmean(readevent[:]['eventspersec'], endtimehrs, timeh)
+    readevent_meandurationsec, readevent_meandurationsec_bincount = binmean(readevent[:]['eventdurationsec'], endtimehrs, timeh)
+    readevent_meaneventcount, readevent_meaneventcount_bincount = binmean(readevent[:]['eventcount'], endtimehrs, timeh)
+    readevent_meaneventspersec, readevent_meaneventspersec_bincount = binmean(readevent[:]['eventspersec'], endtimehrs, timeh)
   # Create final 2D matrix (rows=timebuckets, columns=variables) and save to file
     H = ['exptid', 'timehr',
          'durationsec', 'eventcount', 'eventspersec']
@@ -111,7 +112,10 @@ def Aggregate_merge1d_headerL(statname):
         H.append('durationsec_'+readtype)
         for readclass in ['passfail', 'passonly', 'failonly']:
             for maptype in ['mapa', 'mapy', 'mapn']:
-                s = statname+'_'+readtype+'_'+readclass+'_'+maptype
+                s = statname+'_'+readtype+'_'+readclass+'_'+maptype+'_mean'
+                H.append(s)
+            for maptype in ['mapa', 'mapy', 'mapn']:
+                s = statname+'_'+readtype+'_'+readclass+'_'+maptype+'_count'
                 H.append(s)
     return H
 
@@ -164,24 +168,31 @@ def Create_merg1d(args, P, exptid, merg1dpath, read1dpath, read1d, endtimehrs1T,
 
 def Print_Aggregate_Statistics_File(merg1d, outdir, exptid, timeh, stranddurationsec1T, stranddurationsec1C, mask, statname):
 
-    coldata = { '1T':{}, '1C':{} }
+    colmeans = { '1T':{}, '1C':{} }
+    colcount = { '1T':{}, '1C':{} }
     for key in mask['1T'].keys():
-        coldata['1T'][key] = binmean(merg1d[mask['1T'][key]][statname], merg1d[mask['1T'][key]]['strandendtimesec']/60.0/60.0, timeh)
+        colmeans['1T'][key], colcount['1T'][key] = binmean(merg1d[mask['1T'][key]][statname], merg1d[mask['1T'][key]]['strandendtimesec']/60.0/60.0, timeh)
     for key in mask['1C'].keys():
-        coldata['1C'][key] = binmean(merg1d[mask['1C'][key]][statname], merg1d[mask['1C'][key]]['strandendtimesec']/60.0/60.0, timeh)
+        colmeans['1C'][key], colcount['1C'][key] = binmean(merg1d[mask['1C'][key]][statname], merg1d[mask['1C'][key]]['strandendtimesec']/60.0/60.0, timeh)
     H = Aggregate_merge1d_headerL(statname)
     exptidA = np.array([exptid]*len(timeh))
     A = np.column_stack((
         exptidA,		# col 1-2
         timeh,
         stranddurationsec1T,	# col 3-12
-        coldata['1T']['passfail_mapa'], coldata['1T']['passfail_mapy'], coldata['1T']['passfail_mapn'],
-        coldata['1T']['passonly_mapa'], coldata['1T']['passonly_mapy'], coldata['1T']['passonly_mapn'],
-        coldata['1T']['failonly_mapa'], coldata['1T']['failonly_mapy'], coldata['1T']['failonly_mapn'],
+        colmeans['1T']['passfail_mapa'], colmeans['1T']['passfail_mapy'], colmeans['1T']['passfail_mapn'],
+        colcount['1T']['passfail_mapa'], colcount['1T']['passfail_mapy'], colcount['1T']['passfail_mapn'],
+        colmeans['1T']['passonly_mapa'], colmeans['1T']['passonly_mapy'], colmeans['1T']['passonly_mapn'],
+        colcount['1T']['passonly_mapa'], colcount['1T']['passonly_mapy'], colcount['1T']['passonly_mapn'],
+        colmeans['1T']['failonly_mapa'], colmeans['1T']['failonly_mapy'], colmeans['1T']['failonly_mapn'],
+        colcount['1T']['failonly_mapa'], colcount['1T']['failonly_mapy'], colcount['1T']['failonly_mapn'],
         stranddurationsec1C,	# col 13-22
-        coldata['1C']['passfail_mapa'], coldata['1C']['passfail_mapy'], coldata['1C']['passfail_mapn'],
-        coldata['1C']['passonly_mapa'], coldata['1C']['passonly_mapy'], coldata['1C']['passonly_mapn'],
-        coldata['1C']['failonly_mapa'], coldata['1C']['failonly_mapy'], coldata['1C']['failonly_mapn']
+        colmeans['1C']['passfail_mapa'], colmeans['1C']['passfail_mapy'], colmeans['1C']['passfail_mapn'],
+        colcount['1C']['passfail_mapa'], colcount['1C']['passfail_mapy'], colcount['1C']['passfail_mapn'],
+        colmeans['1C']['passonly_mapa'], colmeans['1C']['passonly_mapy'], colmeans['1C']['passonly_mapn'],
+        colcount['1C']['passonly_mapa'], colcount['1C']['passonly_mapy'], colcount['1C']['passonly_mapn'],
+        colmeans['1C']['failonly_mapa'], colmeans['1C']['failonly_mapy'], colmeans['1C']['failonly_mapn'],
+        colcount['1C']['failonly_mapa'], colcount['1C']['failonly_mapy'], colcount['1C']['failonly_mapn']
         ))
     AL = [[x if str(x)!='nan' else 'NA' for x in row] for row in A.tolist()]
     outpath = os.path.join(outdir, exptid+'_aggregate_read1d_'+statname+'.txt')
@@ -228,8 +239,8 @@ def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
   # Compute the read durations (in seconds) for 1T and 1C components
     #stranddurationsec1T = binmean(merg1d[mask['1T']['passfail_mapa']]['stranddurationsec'], endtimehrs1T, timeh)
     #stranddurationsec1C = binmean(merg1d[mask['1C']['passfail_mapa']]['stranddurationsec'], endtimehrs1C, timeh)
-    stranddurationsec1T = binmean(merg1d[mask['1T']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1T']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
-    stranddurationsec1C = binmean(merg1d[mask['1C']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1C']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
+    stranddurationsec1T, stranddurationsec1T_bincount = binmean(merg1d[mask['1T']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1T']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
+    stranddurationsec1C, stranddurationsec1C_bincount = binmean(merg1d[mask['1C']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1C']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
   # Collate the aggregate statistics files for each statistic
     Print_Aggregate_Statistics_File(merg1d, args.outdir, exptid, timeh, stranddurationsec1T, stranddurationsec1C, mask, 'seqlen')
     Print_Aggregate_Statistics_File(merg1d, args.outdir, exptid, timeh, stranddurationsec1T, stranddurationsec1C, mask, 'basespersecond')
