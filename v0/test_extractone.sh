@@ -126,3 +126,19 @@ python -m pdb \
 -stats True \
 -fastqheaderformat concise
 
+# Test run to fix the read1d durationsec problem
+
+python -m pdb \
+./marcoporo.py extractone \
+-bin /well/bsg/microbial/marc/phase2/marcoporo/v1.0 \
+-profile None \
+-config /well/bsg/microbial/marc/phase2/marcp2/data/00-config/config.txt \
+-exptid P1b-Lab2-R2-2D \
+-indir /well/bsg/microbial/marc/phase2/marcp2/data/01-fast5/P1b-Lab2-R2-2D \
+-instanceN 000 \
+-outdir /well/bsg/microbial/marc/phase2/marcp2/data/03-extract-test \
+-pairs True \
+-fastq True \
+-stats True \
+-fastqheaderformat concise
+
