@@ -507,18 +507,20 @@ def Print_ontread2dstats(P, exptid, batchid, readclass, instanceN, attrD, fastqD
         #durationsec = -1
         #starttimeiso = 'NA'
         #endtimeiso = 'NA'
-        if read1tstats is not None and read1tstats[11] != -1 and read1tstats[11] != 'NA':
-            starttimesec = read1tstats[11]
+        if read1tstats is not None and read1tstats[12] != -1 and read1tstats[12] != 'NA':
+            starttimesec = read1tstats[12]
         else:
             starttimesec = -1
-        if read1cstats is not None and read1cstats[12] != -1 and read1cstats[12] != 'NA':
-            endtimesec = read1cstats[12]
-        elif read1tstats is not None and read1tstats[12] != -1 and read1tstats[12] != 'NA':
-            endtimesec = read1tstats[12]
+        if read1cstats is not None and read1cstats[13] != -1 and read1cstats[13] != 'NA':
+            endtimesec = read1cstats[13]
+        elif read1tstats is not None and read1tstats[13] != -1 and read1tstats[13] != 'NA':
+            endtimesec = read1tstats[13]
         else:
             endtimesec = -1
         durationsec = (endtimesec - starttimesec) \
             if (starttimesec != -1 and endtimesec != -1 and starttimesec != 'NA' and endtimesec != 'NA') else -1
+        if durationsec < 0 and durationsec != -1.0:
+            pass
         if starttimesec != -1 and starttimesec != '-1':
             starttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + starttimesec))
             endtimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(exp_start_time + endtimesec))
