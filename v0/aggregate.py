@@ -32,9 +32,10 @@ def AggregateOne(args, P, mylogger, exptid, jobprefix):
         ' -profile {filepath}'.format(filepath=args.profile),
         ' -config {filepath}'.format(filepath=args.config),
         ' -exptid {exptid}'.format(exptid=exptid),
-        ' -indir {dirpath}'.format(dirpath=args.indir),
-        ' -timebucket {hours}'.format(hours=args.timebucket),
+        ' -extractdir {dirpath}'.format(dirpath=args.extractdir),
+        ' -bwamemdir {dirpath}'.format(dirpath=args.bwamemdir),
         ' -maxrunlen {hours}'.format(hours=args.maxrunlen),
+        ' -timebucket {hours}'.format(hours=args.timebucket),
         ' -outdir {dirpath}'.format(dirpath=args.outdir)]
     cmd = ' \\\n'.join(cmdL)
     rv  = P.cmdfile_create(qsubparamL, cmd, cmdpath)

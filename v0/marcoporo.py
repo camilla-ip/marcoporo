@@ -205,8 +205,12 @@ def main():
         help='Analysis configuration file')
     p05.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
-    p05.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
-        help='Experiment runfolder (specify absolute path)')
+    #p05.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
+    #    help='Experiment runfolder (specify absolute path)')
+    p05.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
+        help='marcoporo extract output dir (specify absolute path)')
+    p05.add_argument('-bwamemdir', dest='bwamemdir', metavar='DIR', required=True, default=None,
+        help='marcoporo bwamem output dir (specify absolute path)')
     p05.add_argument('-maxrunlen', dest='maxrunlen', metavar='FLOAT', type=float, required=False, default=48,
         help='Aggregate metrics for maxrunlen (in hours).')
     p05.add_argument('-timebucket', dest='timebucket', metavar='FLOAT', type=float, required=False, default=0.25,
