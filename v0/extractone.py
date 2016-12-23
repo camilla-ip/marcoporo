@@ -106,7 +106,10 @@ def Print_ontexptstats(P, exptid, batchid, instanceN, attrD, fpD):
     scriptpurpose = attrD['UniqueGlobalKey/tracking_id/exp_script_purpose'][1]
     expstarttime = int(attrD['UniqueGlobalKey/tracking_id/exp_start_time'][1])
     expstarttimeiso = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(expstarttime))
-    versionname = attrD['UniqueGlobalKey/tracking_id/version_name'][1]
+    try:
+        versionname = attrD['UniqueGlobalKey/tracking_id/version_name'][1]
+    except:
+        versionname = ''
     version = attrD['UniqueGlobalKey/tracking_id/version'][1]
     workflowfullname = Attr(attrD, 'NK',
         ['Analyses/EventDetection_{0}/Configuration/general/workflow_name'.format(instanceN),
