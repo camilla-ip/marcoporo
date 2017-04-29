@@ -314,23 +314,35 @@ def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
   # Set up various masks for the 1T and 1C read sets
   # 0-based-index: 5=readtype, 28=ismapped, 6=returnstatus
     mask = { '1T':{}, '1C':{} }
+
     mask['1T']['passfail_mapa'] = merg1d[:]['readtype'] == '1T'
     mask['1T']['passfail_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] == 1)
+    mask['1T']['passfail_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['1T']['passfail_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] != 1)
+
     mask['1T']['passonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass')
     mask['1T']['passonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1)
+    mask['1T']['passonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['1T']['passonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] != 1)
+
     mask['1T']['failonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail')
     mask['1T']['failonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1)
+    mask['1T']['failonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['1T']['failonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] != 1)
+
     mask['1C']['passfail_mapa'] = merg1d[:]['readtype'] == '1C'
     mask['1C']['passfail_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] == 1)
+    mask['1C']['passfail_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['1C']['passfail_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] != 1)
+
     mask['1C']['passonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass')
     mask['1C']['passonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1)
+    mask['1C']['passonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['1C']['passonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] != 1)
+
     mask['1C']['failonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail')
     mask['1C']['failonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1)
+    mask['1C']['failonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['1C']['failonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] != 1)
   # Compute the read durations (in seconds) for 1T and 1C components
     stranddurationsec1T, stranddurationsec1T_bincount = binmean(merg1d[mask['1T']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1T']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
@@ -360,15 +372,22 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
   # Set up various masks for the 1T and 1C read sets
   # 0-based-index: 5=readtype, 28=ismapped, 6=returnstatus
     mask = { '2D':{} }
+
     mask['2D']['passfail_mapa'] = merg2d[:]['exptid'] == exptid
     mask['2D']['passfail_mapy'] = merg2d[:]['ismapped'] == 1
+    mask['2D']['passfail_mapt'] = np.bitwise_and(merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['2D']['passfail_mapn'] = merg2d[:]['ismapped'] != 1
+
     mask['2D']['passonly_mapa'] = merg2d[:]['readclass'] == 'pass'
     mask['2D']['passonly_mapy'] = np.bitwise_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1)
+    mask['2D']['passonly_mapt'] = np.bitwise_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['2D']['passonly_mapn'] = np.bitwise_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] != 1)
+
     mask['2D']['failonly_mapa'] = merg2d[:]['readclass'] == 'fail'
     mask['2D']['failonly_mapy'] = np.bitwise_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1)
+    mask['2D']['failonly_mapt'] = np.bitwise_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
     mask['2D']['failonly_mapn'] = np.bitwise_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] != 1)
+
   # Compute the read durations (in seconds) for 2D components
     durationsec2D, durationsec2D_bincount = binmean(merg2d[mask['2D']['passfail_mapa']]['durationsec'], merg2d[mask['2D']['passfail_mapa']]['endtimesec']/60.0/60.0, timeh)
   # Collate the aggregate statistics files for each statistic
