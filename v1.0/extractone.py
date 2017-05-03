@@ -575,7 +575,7 @@ def Extract_Stats(filecnt, P, exptid, batchid, readclass, instanceN, attrD, fast
 
 def Extract_Fast5_Data(filecnt, args, P, mylogger, exptid, fast5path, readclass, fpD, constD, instanceN):
     'Open the FAST5 file, extract all requested information, write it to the file pointer.'
-    mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1} {2}\n'.format(exptid, readclass, fast5path))
+    #mylogger.debug('Extract_Fast5_Data : Processing fast5 from experiment {0} readclass {1} {2}\n'.format(exptid, readclass, fast5path))
     attrD, runnumberD, readnumberD, fastqD = P.fast5_extract(fast5path, instanceN, True, True, args.fastq, True, args.fastqheaderformat)
     if not len(attrD.keys()):
         return None
@@ -604,7 +604,7 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
         fp['read1dstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontread1dstats'))))
         fp['read2dstats'].write('{0}\n'.format('\t'.join(P.fast5_headernames('ontread2dstats'))))
   # Start processing
-    mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
+    #mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
     passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
     faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
     fast5L = []
@@ -626,8 +626,8 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
             break
     return 0
 
-def Files_Open(outdir, dofastq, dopairs, dostats, exptid, mylogger):
-    'Open all the output files requested at the command-line.'
+def Files_List(outdir, exptid):
+    'Return list of output files expected for this program.'
     outpathD = {
       # -fastq
         'fq1Tpass' : os.path.join(outdir, '{exptid}_1T_pass.fastq'.format(exptid=exptid)),
@@ -647,6 +647,10 @@ def Files_Open(outdir, dofastq, dopairs, dostats, exptid, mylogger):
         'read1dstats' : os.path.join(outdir, '{exptid}_read1dstats.txt'.format(exptid=exptid)),
         'read2dstats' : os.path.join(outdir, '{exptid}_read2dstats.txt'.format(exptid=exptid))
     }
+    return outpathD
+
+def Files_Open(outpathD, P, outdir, dofastq, dopairs, dostats, exptid, mylogger):
+    'Open all the output files requested at the command-line.'
     keyL = []
     keyL += ['batch']
     if dofastq:
@@ -682,21 +686,39 @@ def Files_Close(fp):
 
 def Prerequisites(args, P, mylogger, myhandler, processname):
     'Exit program if some prerequisites are not met.'
-    exptconstants_path = os.path.join(args.outdir, P.file_exptconstants())
+    exptconstants_path = args.exptconstants
     if not os.path.exists(exptconstants_path):
         mylogger.error('Input file missing ({0}). Please run \'marcoporo.py exptconstants\' now'.format(exptconstants_path))
         sys.exit(P.err_code('ErrorFileMissing'))
+    if not os.path.exists(args.outdir):
+        os.makedirs(args.outdir)
     return 0
+
+def Files_NeedGenerating(fileL, overwrite):
+    'Return True if .'
+    if overwrite:
+        return True
+    allok = True
+    for outpath in fileL:
+        if os.path.exists(outpath) and os.path.getsize(outpath) > 0:
+            mylogger.error('Output file already exists and overwrite is false ({0})'.format(outpath))
+            allok = False
+    if not allok:
+        return False
+    return True
 
 def Process(args, P, mylogger, myhandler, processname, exptid):
     'Read file of constant field names produced by marcoporo exptconstants.'
-    exptconstants_path = os.path.join(args.outdir, P.file_exptconstants())
-    constL = open(os.path.join(args.outdir, P.file_exptconstantfields()), 'r').read().strip().split('\n')
+    exptconstants_path = args.exptconstants
+    constL = open(args.exptconstantfields, 'r').read().strip().split('\n')
     constD = dict(itertools.izip(constL, len(constL)*[None]))
     if args.fastq or args.pairs or args.stats:
-        fp = Files_Open(args.outdir, args.fastq, args.pairs, args.stats, args.exptid, mylogger)
-        Extract_Expt_Data(args, P, mylogger, myhandler, processname, args.exptid, args.indir, args.instanceN, constD, fp)
-        Files_Close(fp)
+        outpathD = Files_List(args.outdir, args.exptid)
+        proceed = Files_NeedGenerating(outpathD, args.overwrite)
+        if proceed:
+            fp = Files_Open(outpathD, P, args.outdir, args.fastq, args.pairs, args.stats, args.exptid, mylogger)
+            Extract_Expt_Data(args, P, mylogger, myhandler, processname, args.exptid, args.indir, args.instanceN, constD, fp)
+            Files_Close(fp)
     else:
         mylogger.info('Not processing experiment {0} - no data requested'.format(exptid))
     return 0

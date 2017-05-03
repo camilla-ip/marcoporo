@@ -79,11 +79,11 @@ def Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, exptdir
         fp['ontexptpair'].write('{0}\n'.format('\t'.join(P.ontexptpairH)))
         fp['ontreadpair'].write('{0}\n'.format('\t'.join(P.ontreadpairH)))
     if args.stats:
-        fp['ontexptstats'].write('{0}\n'.format('\t'.join(P.ontexptstatsH)))
-        fp['ontreadstats'].write('{0}\n'.format('\t'.join(P.ontreadstatsH)))
-        fp['ontreadeventstats'].write('{0}\n'.format('\t'.join(P.ontreadeventstatsH)))
-        fp['ontread1dstats'].write('{0}\n'.format('\t'.join(P.ontread1dstatsH)))
-        fp['ontread2dstats'].write('{0}\n'.format('\t'.join(P.ontread2dstatsH)))
+        fp['ontexptstats'].write('{0}\n'.format('\t'.join([x[0] for x in P.ontexptstatsH])))
+        fp['ontreadstats'].write('{0}\n'.format('\t'.join([x[0] for x in P.ontreadstatsH])))
+        fp['ontreadeventstats'].write('{0}\n'.format('\t'.join([x[0] for x in P.ontreadeventstatsH])))
+        fp['ontread1dstats'].write('{0}\n'.format('\t'.join([x[0] for x in P.ontread1dstatsH])))
+        fp['ontread2dstats'].write('{0}\n'.format('\t'.join([x[0] for x in P.ontread2dstatsH])))
 
   # Iterate across all FAST5 files
     mylogger.debug('Extract_Expt_Data : Processing fast5 from experiment {0}\n'.format(exptid))
@@ -145,9 +145,7 @@ def PairFiles_Open(outdir):
     fp = Files_Open(outpathD)
     return fp
 
-def FastqFiles_Open(outdir, exptid, passdir, faildir):
-    #passdir = os.path.join(exptdir, 'reads', 'downloads', 'pass')
-    #faildir = os.path.join(exptdir, 'reads', 'downloads', 'fail')
+def FastqFiles_Open(outdir, exptid):
     outpathD = {
       # -fastq
         'fq1Tpass' : os.path.join(outdir, '{exptid}_1T_pass.fastq'.format(exptid=exptid)),
@@ -160,26 +158,37 @@ def FastqFiles_Open(outdir, exptid, passdir, faildir):
     fp = Files_Open(outpathD)
     return fp
 
-def ModelFiles_Open(outdir):
-    outpathD = {
-        'model' : os.path.join(args.outdir, '{exptid}_model.txt'.format(exptid=exptid))
-    }
-    fp = Files_Open(outpathD)
-    return fp
+#def ModelFiles_Open(outdir):
+#    outpathD = {
+#        'model' : os.path.join(args.outdir, '{exptid}_model.txt'.format(exptid=exptid))
+#    }
+#    fp = Files_Open(outpathD)
+#    return fp
 
 def StatsFiles_Open(outdir):
     outpathD = {
-        'ontexptstats' : os.path.join(args.outdir, 'ontexptstat.txt'),
-        'ontreadstats' : os.path.join(args.outdir, 'ontreadstat.txt')
+        'ontexptstats' : os.path.join(outdir, 'ontexptstat.txt'),
+        'ontreadstats' : os.path.join(outdir, 'ontreadstat.txt'),
+        'ontreadeventstats' : os.path.join(outdir, 'ontreadeventstat.txt'),
+        'ontread1dstats' : os.path.join(outdir, 'ontread1dstats.txt'),
+        'ontread2dstats' : os.path.join(outdir, 'ontread2dstats.txt')
     }
     fp = Files_Open(outpathD)
     return fp
 
-def Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD, fp):
+def Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD):
     'Iterate through each FAST5 file and store the info specified in the command-line flags.'
     mylogger.info('Start iterating across all FAST5 files.')
     for exptid in exptidL:
+        fp = {}
+        if args.fastq:
+            fp.update(FastqFiles_Open(args.outdir, exptid))
+        if args.pairs:
+            fp.update(PairFiles_Open(args.outdir))
+        if args.stats:
+            fp.update(StatsFiles_Open(args.outdir))
         Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, E[exptid]['dirpath'], E[exptid]['instanceN'], constD, fp)
+        Files_Close(fp)
     mylogger.info('Finished iterating across all FAST5 files.')
     return 0
 
@@ -196,10 +205,9 @@ def Process(args, P, mylogger, myhandler, processname):
     exptidL, E = P.expt_read(args.experiments)
     constL = open(os.path.join(args.outdir, P.file_exptconstantfields()), 'r').read().strip().split('\n')
     constD = dict(itertools.izip(constL, len(constL)*[None]))
-    if args.fastq or args.model or args.pairs or args.stats:
-        fp = Files_Open(args.outdir)
-        Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD, fp)
-        Files_Close(fp)
+    if args.fastq or args.pairs or args.stats:
+        Iterate_Fast5(args, P, mylogger, myhandler, processname, exptidL, E, constD)
+        #Files_Close(fp)
     else:
         mylogger.info('{0}: Not iterating over all FAST5 in all experiments'.format(processname))
     return 0
@@ -209,9 +217,10 @@ def run(parser, args, P, mylogger, myhandler, argv):
     _mylogger = mylogger
     mylogger.info('{0}: Started'.format(_processname))
     args.fastq = P.str_2bool(args.fastq)
-    args.model = P.str_2bool(args.model)
+    #args.model = P.str_2bool(args.model)
     args.pairs = P.str_2bool(args.pairs)
     args.stats = P.str_2bool(args.stats)
+    args.overwrite = P.str_2bool(args.overwrite)
     Prerequisites(args, P, mylogger, myhandler, _processname)
     Process(args, P, mylogger, myhandler, _processname)
     mylogger.info('{0}: Finished'.format(_processname))
