@@ -6,6 +6,7 @@ import logging
 import numpy as np
 import os
 import random
+import sys
 
 import marcoporoversion
 
@@ -114,6 +115,29 @@ def Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E):
     mylogger.info('Finished computing table of fields shared across each experiment (expt_share_[values|fields].txt).')
     return S
 
+def ContinueProcessing(args, P, mylogger):
+    'Return without doing anything if args.overwrite is True and output files already exist and do not have zero length.'
+
+    L = [P.file_exptconstants(), P.file_exptconstantfields()]
+
+    if args.overwrite:
+        for outfile in L:
+            outpath = os.path.join(args.outdir, outfile)
+            if os.path.exists(outpath) and os.path.getsize(outpath) > 0:
+                mylogger.warning('Overwriting existing non-empty file ({0})'.format(outpath))
+        return True
+    else:
+        allok = True
+        for outfile in L:
+            outpath = os.path.join(args.outdir, outfile)
+            if os.path.exists(outpath) and os.path.getsize(outpath) > 0:
+                mylogger.error('Output file already exists and overwrite is false ({0})'.format(outpath))
+                allok = False
+        if not allok:
+            return False
+            #sys.exit(P.err_code('ErrorOutfileExists'))
+    return True
+
 def Process(args, P, mylogger, myhandler, processname):
     exptidL, E = P.expt_read(args.experiments)
     S = Compute_Share(args, P, mylogger, myhandler, processname, exptidL, E)
@@ -122,6 +146,9 @@ def Process(args, P, mylogger, myhandler, processname):
 def run(parser, args, P, mylogger, myhandler, argv):
     global _mylogger
     _mylogger = mylogger
+    args.overwrite = P.str_2bool(args.overwrite)
     mylogger.info('{0}: Started'.format(_processname))
-    Process(args, P, mylogger, myhandler, _processname)
+    if ContinueProcessing(args, P, mylogger):
+        Process(args, P, mylogger, myhandler, _processname)
     mylogger.info('{0}: Finished'.format(_processname))
+    return 0

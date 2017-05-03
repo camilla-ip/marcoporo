@@ -121,6 +121,8 @@ def main():
         help='Number of FAST5 files to inspect from each expt to infer constant attributes.')
     p01.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
+    p01.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
     p01.set_defaults(func=run_subtool)
 
     p02 = subparsers.add_parser('extract', help='Extract required data from all experiments',
@@ -143,6 +145,8 @@ def main():
         help='Single-row summary stats for each experiment and read')
     p02.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10000000,
         help='Number of FAST5 files to inspect from each expt, useful for testing.')
+    p02.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
     p02.set_defaults(func=run_subtool)
 
     p03 = subparsers.add_parser('extractone', help='Extract data from one experiment',
@@ -171,6 +175,8 @@ def main():
         help='Number of FAST5 files to inspect from each expt, useful for testing.')
     p03.add_argument('-fastqheaderformat', dest='fastqheaderformat', metavar='FILE', required=False, default='concise',
         help='Output FASTQ header format [fast5|concise|poretools] ')
+    p03.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
     p03.set_defaults(func=run_subtool)
 
     p04 = subparsers.add_parser('aggregateone', help='Aggregate value from one experiment into time buckets',
@@ -193,6 +199,8 @@ def main():
         help='Time window over which to aggregate metrics (in hours).')
     p04.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
+    p04.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
     p04.set_defaults(func=run_subtool)
 
     p05 = subparsers.add_parser('aggregate', help='Aggregate value from one experiment into time buckets',
@@ -219,6 +227,8 @@ def main():
         help='Output directory (specify absolute path)')
     p05.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
         help='If False, create the job scripts but do not execute.')
+    p05.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
     p05.set_defaults(func=run_subtool)
 
     p06 = subparsers.add_parser('analysis', help='Compute summary table and plots',
@@ -237,7 +247,19 @@ def main():
         help='Output directory (specify absolute path)')
     p06.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
         help='If False, create the job scripts but do not execute.')
+    p06.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
     p06.set_defaults(func=run_subtool)
+
+#    p06 = subparsers.add_parser('analysis', help='Compute summary table and plots',
+#        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+#    p06.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+#        help='marcoporo scripts dir (specify absolute path)')
+#    p06.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+#        help='marcoporo environment statements (specify absolute path)')
+#    p06.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+#        help='Analysis configuration file')
+#    p06.set_defaults(func=run_subtool)
 
   # Parse the arguments
 
