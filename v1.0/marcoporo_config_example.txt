@@ -45,6 +45,7 @@ loggingverbosity=INFO
 bwa=/path/to/bwa
 poremapstats=/path/to/poremapstats.py
 marcoporo=/path/to/marcoporo.py
+samtools=/path/to/samtools
 refpath=/path/to/references.fasta
 targetpath=/path/to/target.fasta
 controlpath=/path/to/control.fasta
