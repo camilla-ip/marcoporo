@@ -435,6 +435,8 @@ def Process(args, P, mylogger, myhandler, processname, exptid):
 def run(parser, args, P, mylogger, myhandler, argv):
     'Execute this sub-tool.'
     mylogger.info('Started')
+    if not os.path.exists(args.outdir):
+        os.makedirs(args.outdir)
     Prerequisites(args, P, mylogger, myhandler, _processname)
     Process(args, P, mylogger, myhandler, _processname, args.exptid)
     mylogger.info('Finished')
