@@ -170,16 +170,16 @@ def Aggregate_merge2d_headerL(statname):
 def Create_merg1d(args, P, exptid, merg1dpath, read1dpath, read1d, endtimehrs1T, endtimehrs1C):
   # Read in the poremapstats 'readstats.txt' output files for 1D reads
     stats1tpasspath = os.path.join(args.bwamemdir,
-        '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1T', readclass='pass'),
+        #'{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1T', readclass='pass'),
         '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='1T', readclass='pass'))
     stats1tfailpath = os.path.join(args.bwamemdir,
-        '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1T', readclass='fail'),
+        #'{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1T', readclass='fail'),
         '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='1T', readclass='fail'))
     stats1cpasspath = os.path.join(args.bwamemdir,
-        '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1C', readclass='pass'),
+        #'{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1C', readclass='pass'),
         '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='1C', readclass='pass'))
     stats1cfailpath = os.path.join(args.bwamemdir,
-        '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1C', readclass='fail'),
+        #'{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='1C', readclass='fail'),
         '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='1C', readclass='fail'))
     stats1t = Parse_poremapstats_read1dstats(stats1tpasspath, stats1tfailpath)
     stats1c = Parse_poremapstats_read1dstats(stats1cpasspath, stats1cfailpath)
@@ -316,34 +316,53 @@ def Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid):
     mask = { '1T':{}, '1C':{} }
 
     mask['1T']['passfail_mapa'] = merg1d[:]['readtype'] == '1T'
-    mask['1T']['passfail_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] == 1)
-    mask['1T']['passfail_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['1T']['passfail_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] != 1)
+    mask['1T']['passfail_mapy'] = np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] == 1)
+    mask['1T']['passfail_mapt'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] == 1),
+        ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float)>=0.75)))
+    mask['1T']['passfail_mapn'] = np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['ismapped'] != 1)
 
-    mask['1T']['passonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass')
-    mask['1T']['passonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1)
-    mask['1T']['passonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['1T']['passonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] != 1)
+    mask['1T']['passonly_mapa'] = np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass')
+    mask['1T']['passonly_mapy'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass'), merg1d[:]['ismapped'] == 1)
+    mask['1T']['passonly_mapt'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass'),
+        np.logical_and(merg1d[:]['ismapped'] == 1, (merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float)) >= 0.75))
+    mask['1T']['passonly_mapn'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'pass'), merg1d[:]['ismapped'] != 1)
 
-    mask['1T']['failonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail')
-    mask['1T']['failonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1)
-    mask['1T']['failonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['1T']['failonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] != 1)
+    mask['1T']['failonly_mapa'] = np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail')
+    mask['1T']['failonly_mapy'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail'), merg1d[:]['ismapped'] == 1)
+    mask['1T']['failonly_mapt'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail'),
+        np.logical_and(merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75)))
+    mask['1T']['failonly_mapn'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1T', merg1d[:]['returnstatus'] == 'fail'), merg1d[:]['ismapped'] != 1)
 
     mask['1C']['passfail_mapa'] = merg1d[:]['readtype'] == '1C'
-    mask['1C']['passfail_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] == 1)
-    mask['1C']['passfail_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['1C']['passfail_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] != 1)
+    mask['1C']['passfail_mapy'] = np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] == 1)
+    mask['1C']['passfail_mapt'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] == 1),
+        ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
+    mask['1C']['passfail_mapn'] = np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['ismapped'] != 1)
 
-    mask['1C']['passonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass')
-    mask['1C']['passonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1)
-    mask['1C']['passonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['1C']['passonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] != 1)
+    mask['1C']['passonly_mapa'] = np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass')
+    mask['1C']['passonly_mapy'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass'), merg1d[:]['ismapped'] == 1)
+    mask['1C']['passonly_mapt'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass'),
+        np.logical_and(merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75)))
+    mask['1C']['passonly_mapn'] = np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'pass', merg1d[:]['ismapped'] != 1)
 
-    mask['1C']['failonly_mapa'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail')
-    mask['1C']['failonly_mapy'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1)
-    mask['1C']['failonly_mapt'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['1C']['failonly_mapn'] = np.bitwise_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] != 1)
+    mask['1C']['failonly_mapa'] = np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail')
+    mask['1C']['failonly_mapy'] = np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail', merg1d[:]['ismapped'] == 1)
+    mask['1C']['failonly_mapt'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail'),
+        np.logical_and(merg1d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75)))
+    mask['1C']['failonly_mapn'] = np.logical_and(
+        np.logical_and(merg1d[:]['readtype'] == '1C', merg1d[:]['returnstatus'] == 'fail'),
+        merg1d[:]['ismapped'] != 1)
   # Compute the read durations (in seconds) for 1T and 1C components
     stranddurationsec1T, stranddurationsec1T_bincount = binmean(merg1d[mask['1T']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1T']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
     stranddurationsec1C, stranddurationsec1C_bincount = binmean(merg1d[mask['1C']['passfail_mapa']]['stranddurationsec'], merg1d[mask['1C']['passfail_mapa']]['strandendtimesec']/60.0/60.0, timeh)
@@ -375,18 +394,22 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
 
     mask['2D']['passfail_mapa'] = merg2d[:]['exptid'] == exptid
     mask['2D']['passfail_mapy'] = merg2d[:]['ismapped'] == 1
-    mask['2D']['passfail_mapt'] = np.bitwise_and(merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
+    mask['2D']['passfail_mapt'] = np.logical_and(merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
     mask['2D']['passfail_mapn'] = merg2d[:]['ismapped'] != 1
 
     mask['2D']['passonly_mapa'] = merg2d[:]['readclass'] == 'pass'
-    mask['2D']['passonly_mapy'] = np.bitwise_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1)
-    mask['2D']['passonly_mapt'] = np.bitwise_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['2D']['passonly_mapn'] = np.bitwise_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] != 1)
+    mask['2D']['passonly_mapy'] = np.logical_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1)
+    mask['2D']['passonly_mapt'] = np.logical_and(
+        np.logical_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1),
+        ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
+    mask['2D']['passonly_mapn'] = np.logical_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] != 1)
 
     mask['2D']['failonly_mapa'] = merg2d[:]['readclass'] == 'fail'
-    mask['2D']['failonly_mapy'] = np.bitwise_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1)
-    mask['2D']['failonly_mapt'] = np.bitwise_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/float(merg1d[:]['seqlen']))>=0.75))
-    mask['2D']['failonly_mapn'] = np.bitwise_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] != 1)
+    mask['2D']['failonly_mapy'] = np.logical_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1)
+    mask['2D']['failonly_mapt'] = np.logical_and(
+        np.logical_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1),
+        ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
+    mask['2D']['failonly_mapn'] = np.logical_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] != 1)
 
   # Compute the read durations (in seconds) for 2D components
     durationsec2D, durationsec2D_bincount = binmean(merg2d[mask['2D']['passfail_mapa']]['durationsec'], merg2d[mask['2D']['passfail_mapa']]['endtimesec']/60.0/60.0, timeh)
