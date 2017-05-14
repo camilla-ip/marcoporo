@@ -86,6 +86,8 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import aggregateone as submodule
     elif args.command == 'aggregate':
         import aggregate as submodule
+    elif args.command == 'nanookreports':
+        import nanookreports as submodule
     elif args.command == 'analysis':
         import analysis as submodule
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
@@ -235,25 +237,45 @@ def main():
         help='Overwrite existing output files')
     p05.set_defaults(func=run_subtool)
 
-    p06 = subparsers.add_parser('analysis', help='Compute summary table and plots',
+    p07 = subparsers.add_parser('nanookreports', help='Generate nanook reports',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    p06.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+    p07.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
-    p06.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+    p07.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
         help='marcoporo environment statements (specify absolute path)')
-    p06.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+    p07.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
         help='Analysis configuration file')
-    p06.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+    p07.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
-    p06.add_argument('-topdir', dest='topdir', metavar='DIR', required=True, default=None,
-        help='Top-level directory for marcoporo files (specify absolute path)')
-    p06.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+    p07.add_argument('-threads', dest='threads', metavar='INT', type=int, required=False, default=1,
+        help='Number of threads to use during computation.')
+    p07.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
+        help='marcoporo extract output dir (specify absolute path)')
+    p07.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
-    p06.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
-        help='If False, create the job scripts but do not execute.')
-    p06.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+    p07.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
         help='Overwrite existing output files')
-    p06.set_defaults(func=run_subtool)
+    p07.set_defaults(func=run_subtool)
+
+    p08 = subparsers.add_parser('analysis', help='Compute summary table and plots',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p08.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p08.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p08.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    p08.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='Experiments and analysis parameters')
+    p08.add_argument('-topdir', dest='topdir', metavar='DIR', required=True, default=None,
+        help='Top-level directory for marcoporo files (specify absolute path)')
+    p08.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
+    p08.add_argument('-execjobs', dest='execjobs', metavar='BOOL', required=False, default='True',
+        help='If False, create the job scripts but do not execute.')
+    p08.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
+    p08.set_defaults(func=run_subtool)
 
 #    p06 = subparsers.add_parser('analysis', help='Compute summary table and plots',
 #        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
