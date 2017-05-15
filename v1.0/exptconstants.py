@@ -131,7 +131,7 @@ def ContinueProcessing(args, P, mylogger):
         for outfile in L:
             outpath = os.path.join(args.outdir, outfile)
             if os.path.exists(outpath) and os.path.getsize(outpath) > 0:
-                mylogger.error('Output file already exists and overwrite is false ({0})'.format(outpath))
+                mylogger.warning('Output file already exists and overwrite is false ({0})'.format(outpath))
                 allok = False
         if not allok:
             return False

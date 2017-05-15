@@ -78,16 +78,12 @@ import time
 def run_subtool(parser, args, P, mylogger, myhandler):
     if args.command == 'exptconstants':
         import exptconstants as submodule
-    elif args.command == 'extractone':
-        import extractone as submodule
     elif args.command == 'extract':
         import extract as submodule
     elif args.command == 'mapwithbwa':
         import mapwithbwa as submodule
     elif args.command == 'aggregateone':
         import aggregateone as submodule
-    #elif args.command == 'aggregate':
-    #    import aggregate as submodule
     elif args.command == 'nanookreports':
         import nanookreports as submodule
     elif args.command == 'analysis':
@@ -131,31 +127,7 @@ def main():
         help='Overwrite existing output files')
     p01.set_defaults(func=run_subtool)
 
-#    p02 = subparsers.add_parser('extract', help='Extract required data from all experiments',
-#        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-#    p02.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
-#        help='marcoporo scripts dir (specify absolute path)')
-#    p02.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
-#        help='marcoporo environment statements (specify absolute path)')
-#    p02.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
-#        help='Analysis configuration file')
-#    p02.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
-#        help='Experiments and analysis parameters')
-#    p02.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
-#        help='Output directory (specify absolute path)')
-#    p02.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
-#        help='1D and 2D basecalls')
-#    p02.add_argument('-pairs', dest='pairs', metavar='BOOL', required=False, default='False',
-#        help='Name-value pairs for each experiment and read attribute')
-#    p02.add_argument('-stats', dest='stats', metavar='BOOL', required=False, default='True',
-#        help='Single-row summary stats for each experiment and read')
-#    p02.add_argument('-samplesize', dest='samplesize', metavar='INT', type=int, required=False, default=10000000,
-#        help='Number of FAST5 files to inspect from each expt, useful for testing.')
-#    p02.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
-#        help='Overwrite existing output files')
-#    p02.set_defaults(func=run_subtool)
-
-    p03 = subparsers.add_parser('extractone', help='Extract data from one experiment',
+    p03 = subparsers.add_parser('extract', help='Extract data from one experiment',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p03.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
         help='marcoporo scripts dir (specify absolute path)')
@@ -167,13 +139,13 @@ def main():
         help='Path of file containing metadata fields and their values in each experiment')
     p03.add_argument('-exptconstantfields', dest='exptconstantfields', metavar='FILE', required=True, default='exptconstantfields.txt',
         help='Path of file containing metadata field names shared by all experiments')
-    p03.add_argument('-exptid', dest='exptid', metavar='STR', required=True, default=None,
-        help='Experiment identifier')
-    p03.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
-        help='Experiment runfolder (specify absolute path)')
-    p03.add_argument('-instanceN', dest='instanceN', metavar='STR', required=False, default='000',
-        help='The instanceN basecalling instance to extract data from')
-    p03.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+    p03.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='Experiments and analysis parameters')
+    #p03.add_argument('-exptdir', dest='exptdir', metavar='DIR', required=True, default=None,
+    #    help='Experiment runfolder (specify absolute path)')
+    #p03.add_argument('-instanceN', dest='instanceN', metavar='STR', required=False, default='000',
+    #    help='The instanceN basecalling instance to extract data from')
+    p03.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
         help='Output directory (specify absolute path)')
     p03.add_argument('-fastq', dest='fastq', metavar='BOOL', required=False, default='True',
         help='1D and 2D basecalls')
@@ -197,8 +169,6 @@ def main():
         help='marcoporo environment statements (specify absolute path)')
     p09.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
         help='Analysis configuration file')
-    #p09.add_argument('-exptid', dest='exptid', metavar='FILE', required=True, default=None,
-    #    help='Experiment identifier')
     p09.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
     p09.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
@@ -219,8 +189,8 @@ def main():
         help='Analysis configuration file')
     p04.add_argument('-exptid', dest='exptid', metavar='FILE', required=True, default=None,
         help='Experiment identifier')
-    p04.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
-        help='marcoporo extract output dir (specify absolute path)')
+    p04.add_argument('-aggregatedir', dest='aggregatedir', metavar='DIR', required=True, default=None,
+        help='marcoporo aggregateone output dir (specify absolute path)')
     p04.add_argument('-bwamemdir', dest='bwamemdir', metavar='DIR', required=True, default=None,
         help='marcoporo bwamem output dir (specify absolute path)')
     p04.add_argument('-maxrunlen', dest='maxrunlen', metavar='FLOAT', type=float, required=False, default=48,
@@ -243,8 +213,6 @@ def main():
         help='Analysis configuration file')
     p05.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
-    #p05.add_argument('-indir', dest='indir', metavar='DIR', required=True, default=None,
-    #    help='Experiment runfolder (specify absolute path)')
     p05.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
         help='marcoporo extract output dir (specify absolute path)')
     p05.add_argument('-bwamemdir', dest='bwamemdir', metavar='DIR', required=True, default=None,

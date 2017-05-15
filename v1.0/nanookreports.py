@@ -156,7 +156,7 @@ def Nanook_Align(args, P, mylogger, myhandler, processname, exptid, E, exptindir
                             #mylogger.info('Removing {0}'.format(samlastpath))
                             os.remove(samlastpath)
                         except:
-                            mylogger.warn('Failed to remove {0}'.format(samlastpath))
+                            mylogger.warning('Failed to remove {0}'.format(samlastpath))
     return True
 
 def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptindir):
@@ -180,7 +180,7 @@ def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptind
     try:
         os.rename(origpassfailpdf, passfailpdf)
     except:
-        mylogger.warn('Failed to rename nanook pdf {0} -> {1}'.format(origfailonlypdf, failonlypdf))
+        mylogger.warning('Failed to rename nanook pdf {0} -> {1}'.format(origfailonlypdf, failonlypdf))
     # Generate PDF report for pass reads only
     cmd = '{nanook} analyse -s {sampledir} -r {referencefasta} -aligner bwa -coveragebin 100 -t {threads}'.format(
         nanook=P.option['program']['nanook'],
@@ -201,7 +201,7 @@ def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptind
     try:
         os.rename(origpassonlypdf, passonlypdf)
     except:
-        mylogger.warn('Failed to rename nanook pdf {0} -> {1}'.format(origfailonlypdf, failonlypdf))
+        mylogger.warning('Failed to rename nanook pdf {0} -> {1}'.format(origfailonlypdf, failonlypdf))
     # Generate PDF report for fail reads only
     cmd = '{nanook} analyse -s {sampledir} -r {referencefasta} -aligner bwa -coveragebin 100 -t {threads}'.format(
         nanook=P.option['program']['nanook'],
@@ -222,13 +222,13 @@ def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptind
     try:
         os.rename(origfailonlypdf, failonlypdf)
     except:
-        mylogger.warn('Failed to rename nanook pdf {0} -> {1}'.format(origfailonlypdf, failonlypdf))
+        mylogger.warning('Failed to rename nanook pdf {0} -> {1}'.format(origfailonlypdf, failonlypdf))
 
     # If any of the output files are missing, print a warning message.
     outpathL = [passfailpdf, passonlypdf, failonlypdf]
     for outpath in outpathL:
         if not os.path.exists(outpath):
-            mylogger.warn('nanook analyse failed to output {0}'.format(outpath))
+            mylogger.warning('nanook analyse failed to output {0}'.format(outpath))
     return True
 
 def Process(args, P, mylogger, myhandler, processname):
