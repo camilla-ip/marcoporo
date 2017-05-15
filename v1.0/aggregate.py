@@ -20,7 +20,7 @@ def AggregateOne(args, P, mylogger, exptid, jobprefix):
     cmdpath = os.path.join(args.outdir, '{exptid}_aggregate.sh'.format(exptid=exptid))
     logpath = os.path.join(args.outdir, '{exptid}_aggregate.sh.log'.format(exptid=exptid))
     jobidpath = os.path.join(args.outdir, '{exptid}_aggregate.sh.jobid'.format(exptid=exptid))
-    runwithqsub = P.option['aggregate']['resourcestype'] == 'sge'
+    runwithqsub = P.option['program']['resourcestype'] == 'sge'
     if runwithqsub:
         jobname = '{jobprefix}{digits:04d}'.format(jobprefix=jobprefix, digits=random.randint(1, 9999))
         qsubparamL = P.cmdfile_qsubparams('aggregate', jobname, logpath)
