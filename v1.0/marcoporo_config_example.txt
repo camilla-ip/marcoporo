@@ -24,6 +24,7 @@
 #  - bwa: Path to bwa program (absolute path is preferred)
 #  - poremapstats: Path to poremapstats program (absolute path is preferred)
 #  - marcoporo: Path to marcoporo program (absolute path is preferred)
+#  - nanook: Path to the NanoOK program (absolute path is preferred)
 #  - refpath: Path to FASTA file of target and control contig(s)
 #  - targetpath: Path to FASTA file of target sample contig(s) only
 #  - controlpath: Path to FASTA file of control sample contig(s) only
@@ -45,34 +46,18 @@ loggingverbosity=INFO
 bwa=/path/to/bwa
 poremapstats=/path/to/poremapstats.py
 marcoporo=/path/to/marcoporo.py
+nanook=/path/to/nanook
 samtools=/path/to/samtools
 refpath=/path/to/references.fasta
 targetpath=/path/to/target.fasta
 controlpath=/path/to/control.fasta
 resourcestype=sge
-server_threads=1
-sge_project=-P projectname
-sge_queue=-q queuename
-sge_parallelenv=-pe shmem 1
-sge_inheritenv=-V
-sge_mergelogs=-j y
-
-[extract]
-resourcestype=sge
-server_threads=8
-sge_project=-P projectname
-sge_queue=-q queuename
-sge_parallelenv=-pe shmem 8
-sge_inheritenv=-V
-sge_mergelogs=-j y
-
-[aggregate]
-resourcestype=sge
 server_threads=8
 sge_project=-P projectname
 sge_queue=-q queuename
 sge_parallelenv=-pe shmem 1
 sge_inheritenv=-V
 sge_mergelogs=-j y
+fastalinewidth = 100
 
 # ============================================================================ #
