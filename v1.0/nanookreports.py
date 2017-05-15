@@ -73,7 +73,7 @@ def Nanook_ExtractFasta(args, P, mylogger, myhandler, processname, exptid, E, ex
         sampledir=exptindir,
         readsdir=os.path.join('reads', 'downloads'),
         instanceN=E[exptid]['instanceN'],
-        threads=P.option['nanookreports']['server_threads']
+        threads=P.option['program']['server_threads']
     )
     mylogger.info('Running {0}'.format(cmd))
     rv, ro, re = P.sys_exec(cmd)
@@ -118,7 +118,7 @@ def Nanook_ExtractFastq(args, P, mylogger, myhandler, processname, exptid, E, ex
         sampledir=exptindir,
         readsdir=os.path.join('reads', 'downloads'),
         instanceN=E[exptid]['instanceN'],
-        threads=P.option['nanookreports']['server_threads']
+        threads=P.option['program']['server_threads']
     )
     mylogger.info('Running {0}'.format(cmd))
     rv, ro, re = P.sys_exec(cmd)
@@ -135,7 +135,7 @@ def Nanook_Align(args, P, mylogger, myhandler, processname, exptid, E, exptindir
         nanook=P.option['program']['nanook'],
         sampledir=exptindir,
         referencefasta=P.option['program']['refpath'],
-        threads=P.option['nanookreports']['server_threads']
+        threads=P.option['program']['server_threads']
     )
     mylogger.info('Running {0}'.format(cmd))
     rv, ro, re = P.sys_exec(cmd)
@@ -166,7 +166,7 @@ def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptind
         nanook=P.option['program']['nanook'],
         sampledir=exptindir,
         referencefasta=P.option['program']['refpath'],
-        threads=P.option['nanookreports']['server_threads']
+        threads=P.option['program']['server_threads']
     )
     if E[exptid]['libtype'] == '1D':
         cmd += ' -templateonly'
@@ -186,7 +186,7 @@ def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptind
         nanook=P.option['program']['nanook'],
         sampledir=exptindir,
         referencefasta=P.option['program']['refpath'],
-        threads=P.option['nanookreports']['server_threads']
+        threads=P.option['program']['server_threads']
     )
     if E[exptid]['libtype'] == '1D':
         cmd += ' -templateonly'
@@ -207,7 +207,7 @@ def Nanook_Analyse(args, P, mylogger, myhandler, processname, exptid, E, exptind
         nanook=P.option['program']['nanook'],
         sampledir=exptindir,
         referencefasta=P.option['program']['refpath'],
-        threads=P.option['nanookreports']['server_threads']
+        threads=P.option['program']['server_threads']
     )
     if E[exptid]['libtype'] == '1D':
         cmd += ' -templateonly'
