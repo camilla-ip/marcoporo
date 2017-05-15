@@ -82,14 +82,18 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import extractone as submodule
     elif args.command == 'extract':
         import extract as submodule
+    elif args.command == 'mapwithbwa':
+        import mapwithbwa as submodule
     elif args.command == 'aggregateone':
         import aggregateone as submodule
-    elif args.command == 'aggregate':
-        import aggregate as submodule
+    #elif args.command == 'aggregate':
+    #    import aggregate as submodule
     elif args.command == 'nanookreports':
         import nanookreports as submodule
     elif args.command == 'analysis':
         import analysis as submodule
+    else:
+        return
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
 
 class ArgumentParserWithDefaults(argparse.ArgumentParser):
@@ -184,6 +188,26 @@ def main():
     p03.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
         help='Overwrite existing output files')
     p03.set_defaults(func=run_subtool)
+
+    p09 = subparsers.add_parser('mapwithbwa', help='Map reads with bwa',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p09.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p09.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p09.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    #p09.add_argument('-exptid', dest='exptid', metavar='FILE', required=True, default=None,
+    #    help='Experiment identifier')
+    p09.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='Experiments and analysis parameters')
+    p09.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
+        help='marcoporo extract output dir (specify absolute path)')
+    p09.add_argument('-bwamemdir', dest='bwamemdir', metavar='DIR', required=True, default=None,
+        help='marcoporo bwamem output dir (specify absolute path)')
+    p09.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
+    p09.set_defaults(func=run_subtool)
 
     p04 = subparsers.add_parser('aggregateone', help='Aggregate value from one experiment into time buckets',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
