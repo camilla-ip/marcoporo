@@ -694,14 +694,15 @@ def Prerequisites(args, P, mylogger, myhandler, processname):
         os.makedirs(args.extractdir)
     return 0
 
-def Files_NeedGenerating(fileL, overwrite):
+def Files_NeedGenerating(fileD, overwrite, mylogger):
     'Return True if .'
     if overwrite:
         return True
     allok = True
-    for outpath in fileL:
+    for filetype in fileD.keys():
+        outpath = fileD[filetype]
         if os.path.exists(outpath) and os.path.getsize(outpath) > 0:
-            mylogger.error('Output file already exists and overwrite is false ({0})'.format(outpath))
+            #mylogger.error('Output file already exists and overwrite is false ({0})'.format(outpath))
             allok = False
     if not allok:
         return False
@@ -718,13 +719,14 @@ def Process(args, P, mylogger, myhandler, processname):
         for exptid in exptidL:
 
             outpathD = Files_List(args.extractdir, exptid)
-            proceed = Files_NeedGenerating(outpathD, args.overwrite)
+            proceed = Files_NeedGenerating(outpathD, args.overwrite, mylogger)
             if proceed:
+                mylogger.info('Running marcoporo extract for exptid {0}'.format(exptid))
                 fp = Files_Open(outpathD, P, args.extractdir, args.fastq, args.pairs, args.stats, exptid, mylogger)
                 Extract_Expt_Data(args, P, mylogger, myhandler, processname, exptid, E[exptid]['dirpath'], E[exptid]['instanceN'], constD, fp)
                 Files_Close(fp)
-        else:
-            mylogger.info('Not processing experiment {0} - no data requested'.format(exptid))
+            else:
+                mylogger.info('Not extracting FASTQ for experiment {0} - files already exist'.format(exptid))
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
@@ -733,6 +735,7 @@ def run(parser, args, P, mylogger, myhandler, argv):
     args.fastq = P.str_2bool(args.fastq)
     args.pairs = P.str_2bool(args.pairs)
     args.stats = P.str_2bool(args.stats)
+    args.overwrite = P.str_2bool(args.overwrite)
     Prerequisites(args, P, mylogger, myhandler, _processname)
     Process(args, P, mylogger, myhandler, _processname)
     mylogger.info('Finished')

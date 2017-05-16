@@ -177,6 +177,7 @@ def Process(args, P, mylogger, myhandler, processname):
 def run(parser, args, P, mylogger, myhandler, argv):
     'Execute this sub-tool.'
     mylogger.info('Started')
+    args.overwrite = P.str_2bool(args.overwrite)
     args.execjobs = P.str_2bool(args.execjobs)
     Prerequisites(args, P, mylogger, myhandler, _processname)
     Process(args, P, mylogger, myhandler, _processname)
