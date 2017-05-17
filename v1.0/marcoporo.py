@@ -191,6 +191,8 @@ def main():
     #    help='Experiment identifier')
     p04.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
         help='Experiments and analysis parameters')
+    p04.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
+        help='marcoporo extract output dir (specify absolute path)')
     p04.add_argument('-bwamemdir', dest='bwamemdir', metavar='DIR', required=True, default=None,
         help='marcoporo bwamem output dir (specify absolute path)')
     p04.add_argument('-aggregatedir', dest='aggregatedir', metavar='DIR', required=True, default=None,

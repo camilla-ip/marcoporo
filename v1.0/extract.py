@@ -701,12 +701,12 @@ def Files_NeedGenerating(fileD, overwrite, mylogger):
     allok = True
     for filetype in fileD.keys():
         outpath = fileD[filetype]
-        if os.path.exists(outpath) and os.path.getsize(outpath) > 0:
+        if not os.path.exists(outpath) or os.path.getsize(outpath) == 0:
             #mylogger.error('Output file already exists and overwrite is false ({0})'.format(outpath))
             allok = False
     if not allok:
-        return False
-    return True
+        return True
+    return False
 
 def Process(args, P, mylogger, myhandler, processname):
     'Read file of constant field names produced by marcoporo exptconstants.'

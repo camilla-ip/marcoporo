@@ -9,6 +9,15 @@ import time
 import marcoporoversion
 
 _processname = 'aggregate'
+_outfilesuffixL = [
+    '_aggregate_read1d_basespersecond.txt',
+    '_aggregate_read1d_bqmean.txt',
+    '_aggregate_read1d_gcpct.txt',
+    '_aggregate_read1d_meanqscore.txt',
+    '_aggregate_read1d_seqlen.txt',
+    '_aggregate_readevent.txt',
+    '_merged1dstats.txt'
+]
 
 def Prerequisites(args, P, mylogger, myhandler, processname, exptidL, E):
     'Exit program if some prerequisites are not met.'
@@ -423,13 +432,30 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
     Print_Aggregate_Read2D_Statistics_File(merg2d, args.outdir, exptid, timeh, durationsec2D, mask, 'gcpct')
     return 0
 
+def Files_NeedGenerating(outfileprefix, mylogger, overwrite, outdir):
+    'Return True if overwrite True or one or all output files do not exist or have zero length.'
+    if overwrite:
+        return True
+    allok = True
+    for outfilesuffix in _outfilesuffixL:
+        outpath = os.path.join(outdir, outfileprefix + outfilesuffix)
+        if not os.path.exists(outpath) or os.path.getsize(outpath) == 0:
+            allok = False
+    if not allok:
+        return True
+    return False
+
 def Process(args, P, mylogger, myhandler, processname, exptidL, E):
     'Aggregate per-read ont*stats.txt metrics into windows of X hours.'
     for exptid in exptidL:
-        Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid)
-        Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
-        Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
-    done
+        proceed = Files_NeedGenerating(exptid, mylogger, args.overwrite, args.aggregatedir)
+        if proceed:
+            mylogger.info('Running aggregate for exptid {0}'.format(exptid))
+            Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid)
+            Aggregate_read1d(args, P, mylogger, myhandler, processname, exptid)
+            Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid)
+        else:
+            mylogger.info('Skipping aggregate for exptid {0}'.format(exptid))
     return 0
 
 def run(parser, args, P, mylogger, myhandler, argv):
