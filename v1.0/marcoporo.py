@@ -84,6 +84,8 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import mapwithbwa as submodule
     elif args.command == 'aggregate':
         import aggregate as submodule
+    elif args.command == 'marginalign':
+        import marginalign as submodule
     elif args.command == 'nanookreports':
         import nanookreports as submodule
     elif args.command == 'analysis':
@@ -232,6 +234,26 @@ def main():
 #    p05.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
 #        help='Overwrite existing output files')
 #    p05.set_defaults(func=run_subtool)
+
+    p10 = subparsers.add_parser('marginalign', help='Generate marginalign alignments and statistics',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p10.add_argument('-bin', dest='bin', metavar='DIR', required=False, default='./',
+        help='marcoporo scripts dir (specify absolute path)')
+    p10.add_argument('-profile', dest='profile', metavar='FILE', required=False, default=None,
+        help='marcoporo environment statements (specify absolute path)')
+    p10.add_argument('-config', dest='config', metavar='FILE', required=True, default='config.txt',
+        help='Analysis configuration file')
+    p10.add_argument('-experiments', dest='experiments', metavar='FILE', required=True, default=None,
+        help='Experiments and analysis parameters')
+    p10.add_argument('-threads', dest='threads', metavar='INT', type=int, required=False, default=1,
+        help='Number of threads to use during computation.')
+    p10.add_argument('-extractdir', dest='extractdir', metavar='DIR', required=True, default=None,
+        help='marcoporo extract output dir (specify absolute path)')
+    p10.add_argument('-outdir', dest='outdir', metavar='DIR', required=True, default=None,
+        help='Output directory (specify absolute path)')
+    p10.add_argument('-overwrite', dest='overwrite', metavar='BOOL', required=False, default='False',
+        help='Overwrite existing output files')
+    p10.set_defaults(func=run_subtool)
 
     p07 = subparsers.add_parser('nanookreports', help='Generate nanook reports',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
