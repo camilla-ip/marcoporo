@@ -9,26 +9,30 @@ import time
 import marcoporoversion
 
 _processname = 'aggregate'
-_outfilesuffixL = [
+_outfilebothsuffixL = [
+    '_aggregate_readevent.txt'
+]
+_outfile1DsuffixL = [
     '_aggregate_read1d_basespersecond.txt',
     '_aggregate_read1d_bqmean.txt',
     '_aggregate_read1d_gcpct.txt',
     '_aggregate_read1d_meanqscore.txt',
     '_aggregate_read1d_seqlen.txt',
+    '_merged1dstats.txt'
+]
+_outfile2DsuffixL = [
     '_aggregate_read2d_seqlen.txt',
     '_aggregate_read2d_basespersecond.txt',
     '_aggregate_read2d_meanqscore.txt',
     '_aggregate_read2d_bqmean.txt',
-    '_aggregate_read2d_gcpct.txt',
-    '_aggregate_readevent.txt',
-    '_merged1dstats.txt'
+    '_aggregate_read2d_gcpct.txt'
 ]
 
 def Prerequisites(args, P, mylogger, myhandler, processname, exptidL, E):
     'Exit program if some prerequisites are not met.'
   # marcoporo extract output stats files must already exist, even if they are empty
-    for suffix in P.extractstatfilesuffix:
-        for exptid in exptidL:
+    for exptid in exptidL:
+        for suffix in P.extractstatfilesuffix:
             inpath = os.path.join(args.extractdir, exptid+suffix)
             if not os.path.exists(inpath):
                 mylogger.error('Input file does not exist {0}'.format(inpath))
@@ -37,8 +41,8 @@ def Prerequisites(args, P, mylogger, myhandler, processname, exptidL, E):
     allhavedata = True
     numfiles = len(P.extractstatfilesuffix)
     numempty = 0
-    for suffix in P.extractstatfilesuffix:
-        for exptid in exptidL:
+    for exptid in exptidL:
+        for suffix in P.extractstatfilesuffix:
             inpath = os.path.join(args.extractdir, exptid+suffix)
             if not os.path.getsize(inpath):
                 numempty += 1
@@ -443,12 +447,18 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
     Print_Aggregate_Read2D_Statistics_File(merg2d, args.outdir, exptid, timeh, durationsec2D, mask, 'gcpct')
     return 0
 
-def Files_NeedGenerating(outfileprefix, mylogger, overwrite, outdir):
+def Files_NeedGenerating(outfileprefix, libtype, mylogger, overwrite, outdir):
     'Return True if overwrite True or one or all output files do not exist or have zero length.'
     if overwrite:
         return True
     allok = True
-    for outfilesuffix in _outfilesuffixL:
+    outfilesuffixL = []
+    outfilesuffixL.extend(_outfilebothsuffixL)
+    if libtype == '1D':
+        outfilesuffixL.extend(_outfile1DsuffixL)
+    if libtype == '2D':
+        outfilesuffixL.extend(_outfile2DsuffixL)
+    for outfilesuffix in outfilesuffixL:
         outpath = os.path.join(outdir, outfileprefix + outfilesuffix)
         if not os.path.exists(outpath) or os.path.getsize(outpath) == 0:
             allok = False
@@ -459,7 +469,7 @@ def Files_NeedGenerating(outfileprefix, mylogger, overwrite, outdir):
 def Process(args, P, mylogger, myhandler, processname, exptidL, E):
     'Aggregate per-read ont*stats.txt metrics into windows of X hours.'
     for exptid in exptidL:
-        proceed = Files_NeedGenerating(exptid, mylogger, args.overwrite, args.aggregatedir)
+        proceed = Files_NeedGenerating(exptid, E[exptid]['libtype'], mylogger, args.overwrite, args.aggregatedir)
         if proceed:
             mylogger.info('Running aggregate for exptid {0}'.format(exptid))
             Aggregate_readevent(args, P, mylogger, myhandler, processname, exptid)
