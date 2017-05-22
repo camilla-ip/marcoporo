@@ -15,6 +15,11 @@ _outfilesuffixL = [
     '_aggregate_read1d_gcpct.txt',
     '_aggregate_read1d_meanqscore.txt',
     '_aggregate_read1d_seqlen.txt',
+    '_aggregate_read2d_seqlen.txt',
+    '_aggregate_read2d_basespersecond.txt',
+    '_aggregate_read2d_meanqscore.txt',
+    '_aggregate_read2d_bqmean.txt',
+    '_aggregate_read2d_gcpct.txt',
     '_aggregate_readevent.txt',
     '_merged1dstats.txt'
 ]
@@ -221,11 +226,17 @@ def Create_merg1d(args, P, exptid, merg1dpath, read1dpath, read1d, endtimehrs1T,
 
 def Create_merg2d(args, P, exptid, merg2dpath, read2dpath, read2d, endtimehrs2D):
   # Read in the poremapstats 'readstats.txt' output files for 2D reads
+    #stats2dpasspath = os.path.join(args.bwamemdir,
+    #    '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='2D', readclass='pass'),
+    #    '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='2D', readclass='pass'))
+    #stats2dfailpath = os.path.join(args.bwamemdir,
+    #    '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='2D', readclass='fail'),
+    #    '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='2D', readclass='fail'))
     stats2dpasspath = os.path.join(args.bwamemdir,
-        '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='2D', readclass='pass'),
+    #    '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='2D', readclass='pass'),
         '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='2D', readclass='pass'))
     stats2dfailpath = os.path.join(args.bwamemdir,
-        '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='2D', readclass='fail'),
+    #    '{exptid}_{readtype}_{readclass}'.format(exptid=exptid, readtype='2D', readclass='fail'),
         '{exptid}_{readtype}_{readclass}_readstats.txt'.format(exptid=exptid, readtype='2D', readclass='fail'))
     if not os.path.exists(stats2dpasspath) or not os.path.exists(stats2dfailpath):
         return 1
@@ -405,21 +416,21 @@ def Aggregate_read2d(args, P, mylogger, myhandler, processname, exptid):
 
     mask['2D']['passfail_mapa'] = merg2d[:]['exptid'] == exptid
     mask['2D']['passfail_mapy'] = merg2d[:]['ismapped'] == 1
-    mask['2D']['passfail_mapt'] = np.logical_and(merg2d[:]['ismapped'] == 1, ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
+    mask['2D']['passfail_mapt'] = np.logical_and(merg2d[:]['ismapped'] == 1, ((merg2d[:]['alltargetalignbp']/merg2d[:]['seqlen'].astype(float))>=0.75))
     mask['2D']['passfail_mapn'] = merg2d[:]['ismapped'] != 1
 
     mask['2D']['passonly_mapa'] = merg2d[:]['readclass'] == 'pass'
     mask['2D']['passonly_mapy'] = np.logical_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1)
     mask['2D']['passonly_mapt'] = np.logical_and(
         np.logical_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] == 1),
-        ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
+        ((merg2d[:]['alltargetalignbp']/merg2d[:]['seqlen'].astype(float))>=0.75))
     mask['2D']['passonly_mapn'] = np.logical_and(merg2d[:]['readclass'] == 'pass', merg2d[:]['ismapped'] != 1)
 
     mask['2D']['failonly_mapa'] = merg2d[:]['readclass'] == 'fail'
     mask['2D']['failonly_mapy'] = np.logical_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1)
     mask['2D']['failonly_mapt'] = np.logical_and(
         np.logical_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] == 1),
-        ((merg1d[:]['alltargetalignbp']/merg1d[:]['seqlen'].astype(float))>=0.75))
+        ((merg2d[:]['alltargetalignbp']/merg2d[:]['seqlen'].astype(float))>=0.75))
     mask['2D']['failonly_mapn'] = np.logical_and(merg2d[:]['readclass'] == 'fail', merg2d[:]['ismapped'] != 1)
 
   # Compute the read durations (in seconds) for 2D components
