@@ -88,8 +88,6 @@ def run_subtool(parser, args, P, mylogger, myhandler):
         import marginalign as submodule
     elif args.command == 'nanookreports':
         import nanookreports as submodule
-    elif args.command == 'analysis':
-        import analysis as submodule
     else:
         return
     submodule.run(parser, args, P, mylogger, myhandler, sys.argv)
