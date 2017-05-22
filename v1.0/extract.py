@@ -664,9 +664,9 @@ def Files_Open(outpathD, P, outdir, dofastq, dopairs, dostats, exptid, libtype, 
     keyL = []
     keyL += ['batch']
     if dofastq:
-        keyL += ['fq1Tpass', 'fq1Tfail', 'fq1Cpass', 'fq1Cfail']
+        keyL += ['fq1Tpass', 'fq1Tfail']
         if libtype == '2D':
-            keyL += ['fq2Dpass', 'fq2Dfail']
+            keyL += ['fq1Cpass', 'fq1Cfail', 'fq2Dpass', 'fq2Dfail']
     if dopairs:
         keyL += ['exptpairs', 'readpairs']
     if dostats:
