@@ -254,3 +254,4 @@ def run(parser, args, P, mylogger, myhandler, argv):
     Process(args, P, mylogger, myhandler, _processname)
     mylogger.info('Finished')
     return 0
+

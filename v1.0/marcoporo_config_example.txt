@@ -14,7 +14,6 @@
 #  7. All VAR=VAL that occur in later sections override previous
 #  declarations.
 #
-#
 # Description of each flag:
 #  - mp2: Top-level data directory
 #  - logdir: Directory for log files
@@ -37,6 +36,9 @@
 #  - sge_parallelenv: SGE parallelisation string [-pe shmem N or leave blank]
 #  - sge_inheritenv: SGE environment inheritance [-V or leave blank]
 #  - sge_mergelogs: SGE stdout and stderr directions [-j y or leave blank]
+#
+#  Warnings:
+#  - the SGE stuff has not been tested properly, do not recommend using it
 # ============================================================================ 
 
 [program]

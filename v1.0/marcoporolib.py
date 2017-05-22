@@ -172,56 +172,6 @@ class marcoporolib(object):
             ('comment', 'S200'),
             ('dbuserid', 'S20')
         ]
-        self.ontreadeventstatsoldH = [
-            ('exptid', 'S20'),
-            ('batchid', 'S20'),
-            ('runid', 'S200'),
-            ('readid', 'S200'),
-            ('eventinstanceN', 'S4'),
-            ('readclass', 'S8'),	# NEW
-            ('returnstatus', 'S30'),
-            ('eventstarttime', np.float),
-            ('eventduration', np.float),
-            ('eventstarttimesec', np.float),
-            ('eventendtimesec', np.float),
-            ('eventdurationsec', np.float),
-            ('eventstarttimeiso', 'S30'),
-            ('eventendtimeiso', 'S30'),
-            ('eventcount', np.int),
-            ('eventspersec', np.float),
-            ('comment', 'S200'),
-            ('dbuserid', 'S20')
-        ]
-        self.ontread1dstatsoldH = [
-            ('exptid', 'S20'),
-            ('batchid', 'S20'),
-            ('runid', 'S200'),
-            ('readid', 'S200'),
-            ('bc1dinstanceN', 'S4'),
-            ('readtype', 'S2'),
-            ('returnstatus', 'S30'),	# Add readclass after this field
-            ('numevents', np.int),
-            ('numskip', np.int),
-            ('numstays', np.int),
-            ('numcalled', np.int),
-            #('strandstarttime', np.float),
-            #('strandduration', np.float),
-            ('strandstarttimesec', np.float),
-            ('strandendtimesec', np.float),
-            ('stranddurationsec', np.float),
-            ('strandstarttimeiso', 'S30'),
-            ('strandendtimeiso', 'S30'),
-            ('meanqscore', np.float),
-            ('strandscore', np.float),
-            ('seqlen', np.int),
-            ('bqlen', np.int),
-            ('bqmean', np.float),
-            ('bqmedian', np.float),
-            ('gcpct', np.float),
-            ('basespersecond', np.float),
-            ('comment', 'S200'),
-            ('dbuserid', 'S20')
-        ]
         self.ontread1dstatsH = [
             ('exptid', 'S20'),
             ('batchid', 'S20'),
@@ -242,28 +192,6 @@ class marcoporolib(object):
             ('strandendtimeiso', 'S30'),
             ('meanqscore', np.float),
             ('strandscore', np.float),
-            ('seqlen', np.int),
-            ('bqlen', np.int),
-            ('bqmean', np.float),
-            ('bqmedian', np.float),
-            ('gcpct', np.float),
-            ('basespersecond', np.float),
-            ('comment', 'S200'),
-            ('dbuserid', 'S20')
-        ]
-        self.ontread2dstatsoldH = [
-            ('exptid', 'S20'),
-            ('batchid', 'S20'),
-            ('runid', 'S200'),
-            ('readid', 'S200'),
-            ('bc2instanceN', 'S4'),
-            ('returnstatus', 'S30'),	# Add readclass after this field
-            ('starttimesec', np.float),
-            ('endtimesec', np.float),
-            ('durationsec', np.float),
-            ('starttimeiso', 'S30'),
-            ('endtimeiso', 'S30'),
-            ('meanqscore', np.float),
             ('seqlen', np.int),
             ('bqlen', np.int),
             ('bqmean', np.float),
@@ -564,7 +492,6 @@ class marcoporolib(object):
         return result
 
     def fast5_attributes(self, hdf, ignoredatasets=True):
-    #def fast5_extract(self, fast5path, basecallN, getattributes=True, ignoredatasets=True, getfastq=True, addfastqpath=True):
         '''
         Return dictionaries containing the attributes.
         The code is so ugly because lots of the data access stuff only works in
@@ -575,7 +502,6 @@ class marcoporolib(object):
         readnumberD['Read_NNNN'] = ['Read_NNNN', 'NNNN']
         '''
       # Initialise
-        #hdf = h5py.File(fast5path, 'r')
         list_of_names = []
         hdf.visit(list_of_names.append) # CI 2016-11-26: This line can segmentation fault (programme return code 139) if the hdf5 file contains errors, such as an ill-formatted EventDetection_000 group - would have to trap signals, but don't know how to do that, so for now, checking that
       # Create a dictionary that maps all the fields with a run number
@@ -673,24 +599,6 @@ class marcoporolib(object):
             except:
                 pass
 
-#      # Extract the fastq records
-#        fastqD = { '1T': None, '1C': None, '2D': None }
-#        for calltype in self.fast5fastqpath.keys():
-#            for genericpath in self.fast5fastqpath[calltype]:
-#                correctpath = re.sub(r'NNN', basecallN, genericpath)
-#                try:
-#                    fqS = string(hdf[correctpath][()]).strip()
-#                    if fast5path is not None:
-#                        L = record.split('\n')
-#                        L[0] += ' {fast5path}'.format(fast5path)
-#                        fqS = '\n'.join(L)
-#                        fastqD[calltype] = L
-#                    break
-#                except:
-#                    pass
-
-      # Close and exit
-        #hdf.close()
         return attributeD, runnumberD, readnumberD
 
     def fast5_fastq(self, hdf, basecallN, fast5path=None, fastqheaderformat='fast5'):
